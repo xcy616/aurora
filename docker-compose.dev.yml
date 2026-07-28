@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: aurora-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: aurora123
+      MYSQL_DATABASE: aurora
+      TZ: Asia/Shanghai
+    ports:
+      - '3307:3306'
+    volumes:
+      - aurora-mysql-data:/var/lib/mysql
+      - ./aurora-springboot/sql/aurora.sql:/docker-entrypoint-initdb.d/aurora.sql:ro
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-paurora123']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:6.2
+    container_name: aurora-redis
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: aurora-rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  backend:
+    build:
+      context: ./aurora-springboot
+      dockerfile: Dockerfile.dev
+    container_name: aurora-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: aurora123
+      REDIS_HOST: redis
+      RABBIT_HOST: rabbitmq
+    ports:
+      - '8081:8080'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  aurora-mysql-data:
