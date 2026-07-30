@@ -43,6 +43,24 @@ services:
       timeout: 10s
       retries: 20
 
+  minio:
+    image: minio/minio:latest
+    container_name: aurora-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - aurora-minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   backend:
     build:
       context: ./aurora-springboot
@@ -56,6 +74,7 @@ services:
       MYSQL_PASSWORD: aurora123
       REDIS_HOST: redis
       RABBIT_HOST: rabbitmq
+      MINIO_ENDPOINT: http://minio:9000
     ports:
       - '8081:8080'
     depends_on:
@@ -65,6 +84,9 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      minio:
+        condition: service_healthy
 
 volumes:
   aurora-mysql-data:
+  aurora-minio-data:

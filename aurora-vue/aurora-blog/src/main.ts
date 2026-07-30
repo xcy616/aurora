@@ -37,7 +37,10 @@ export const app = createApp(App)
   })
 const userStore = useUserStore()
 axios.interceptors.request.use((config: any) => {
-  config.headers['Authorization'] = 'Bearer ' + sessionStorage.getItem('token')
+  const token = sessionStorage.getItem('token')
+  if (token) {
+    config.headers['Authorization'] = 'Bearer ' + token
+  }
   return config
 })
 const proxy = app.config.globalProperties
@@ -62,10 +65,7 @@ axios.interceptors.response.use(
           type: 'error'
         })
         if (userStore.userInfo !== '') {
-          userStore.userInfo = ''
-          userStore.token = ''
-          userStore.accessArticles = []
-          sessionStorage.removeItem('token')
+          userStore.logout()
         }
         break
       }
@@ -93,6 +93,6 @@ plugins.forEach((plugin) => {
 registerSvgIcon(app)
 registerObSkeleton(app)
 app.mount('#app')
-console.log('%c 网站作者:花未眠', 'color:#bada55')
+console.log('%c 网站作者:xcy', 'color:#bada55')
 console.log('%c qq:1909925152', 'color:#bada55')
 api.report()

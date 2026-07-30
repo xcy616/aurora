@@ -12,7 +12,14 @@ export const useUserStore = defineStore('userStore', {
       page: 1 as any
     }
   },
-  actions: {},
+  actions: {
+    logout() {
+      this.userInfo = ''
+      this.token = ''
+      this.accessArticles = []
+      sessionStorage.removeItem('token')
+    }
+  },
   persist: {
     storage: window.sessionStorage
   }
