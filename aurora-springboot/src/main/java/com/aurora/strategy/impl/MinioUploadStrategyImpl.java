@@ -2,6 +2,8 @@ package com.aurora.strategy.impl;
 
 import com.aurora.config.properties.MinioProperties;
 import io.minio.MinioClient;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;
 import lombok.SneakyThrows;
@@ -31,7 +33,11 @@ public class MinioUploadStrategyImpl extends AbstractUploadStrategyImpl {
     @SneakyThrows
     @Override
     public void upload(String path, String fileName, InputStream inputStream) {
-        getMinioClient().putObject(
+        MinioClient minioClient = getMinioClient();
+        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getBucketName()).build())) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucketName()).build());
+        }
+        minioClient.putObject(
                 PutObjectArgs.builder().bucket(minioProperties.getBucketName()).object(path + fileName).stream(
                                 inputStream, inputStream.available(), -1)
                         .build());
