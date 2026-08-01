@@ -12,7 +12,7 @@
           size="small"
           placeholder="请输入昵称"
           style="width: 200px"
-          @keyup.enter.native="searchUsers" />
+          @keyup.enter="searchUsers" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="searchUsers">
           搜索
         </el-button>
@@ -20,27 +20,27 @@
     </div>
     <el-table border :data="userList" v-loading="loading">
       <el-table-column prop="linkAvatar" label="头像" align="center" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
       </el-table-column>
       <el-table-column prop="nickname" label="昵称" align="center" width="140" />
       <el-table-column prop="loginType" label="登录方式" align="center" width="80">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag type="success" v-if="scope.row.loginType == 1">邮箱</el-tag>
           <el-tag v-if="scope.row.loginType == 2">QQ</el-tag>
           <el-tag type="danger" v-if="scope.row.loginType == 3">微博</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="roles" label="用户角色" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag v-for="(item, index) of scope.row.roles" :key="index" style="margin-right: 4px; margin-top: 4px">
             {{ item.roleName }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="isDisable" label="禁用" align="center" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-switch
             v-model="scope.row.isDisable"
             active-color="#13ce66"
@@ -53,20 +53,20 @@
       <el-table-column prop="ipAddress" label="登录ip" align="center" width="140" />
       <el-table-column prop="ipSource" label="登录地址" align="center" width="140" />
       <el-table-column prop="createTime" label="创建时间" width="130" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.createTime | date }}
+          {{ $date(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column prop="lastLoginTime" label="上次登录时间" width="130" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.lastLoginTime | date }}
+          {{ $date(scope.row.lastLoginTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="100">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openEditModel(scope.row)"> 编辑 </el-button>
+        <template #default="scope">
+          <el-button type="primary" size="small" @click="openEditModel(scope.row)"> 编辑 </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,8 +80,8 @@
       :total="count"
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper" />
-    <el-dialog :visible.sync="isEdit" width="30%">
-      <div class="dialog-title-container" slot="title">修改用户</div>
+    <el-dialog v-model="isEdit" width="30%">
+      <template #title><div class="dialog-title-container">修改用户</div></template>
       <el-form label-width="60px" size="medium" :model="userForm">
         <el-form-item label="昵称">
           <el-input v-model="userForm.nickname" style="width: 220px" />
@@ -94,18 +94,23 @@
           </el-checkbox-group>
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isEdit = false">取 消</el-button>
         <el-button type="primary" @click="editUserRole"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.user
+    this.current = this.store.pageState.user
     this.listUsers()
     this.listRoles()
   },
@@ -148,7 +153,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateUserPageState', current)
+      this.store.updateUserPageState(current)
       this.listUsers()
     },
     changeDisable(user) {

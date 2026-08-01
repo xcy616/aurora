@@ -1,12 +1,4 @@
-!(function (t, e) {
-  'object' == typeof exports && 'object' == typeof module
-    ? (module.exports = e())
-    : 'function' == typeof define && define.amd
-    ? define('TagCloud', [], e)
-    : 'object' == typeof exports
-    ? (exports.TagCloud = e())
-    : (t.TagCloud = e())
-})('undefined' != typeof self ? self : this, function () {
+export default (function () {
   return (function (t) {
     function e(o) {
       if (n[o]) return n[o].exports
@@ -458,5 +450,5 @@
       e.a = i
     }
   ])
-})
+})()
 //# sourceMappingURL=tag-cloud.js.map

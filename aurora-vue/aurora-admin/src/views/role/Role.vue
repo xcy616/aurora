@@ -18,7 +18,7 @@
           size="small"
           placeholder="请输入角色名"
           style="width: 200px"
-          @keyup.enter.native="searchRoles" />
+          @keyup.enter="searchRoles" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="searchRoles">
           搜索
         </el-button>
@@ -28,28 +28,28 @@
       <el-table-column type="selection" width="55" />
       <el-table-column prop="roleName" label="角色名" align="center" />
       <el-table-column prop="roleLabel" label="权限标签" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag>
             {{ scope.row.roleName }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="150" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.createTime | date }}
+          {{ $date(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="220">
-        <template slot-scope="scope">
-          <el-button type="text" size="mini" @click="openMenuModel(scope.row)">
+        <template #default="scope">
+          <el-button type="text" size="small" @click="openMenuModel(scope.row)">
             <i class="el-icon-edit" /> 菜单权限
           </el-button>
-          <el-button type="text" size="mini" @click="openResourceModel(scope.row)">
+          <el-button type="text" size="small" @click="openResourceModel(scope.row)">
             <i class="el-icon-folder-checked" /> 资源权限
           </el-button>
           <el-popconfirm title="确定删除吗？" style="margin-left: 10px" @confirm="deleteRoles(scope.row.id)">
-            <el-button size="mini" type="text" slot="reference"> <i class="el-icon-delete" /> 删除 </el-button>
+            <template #reference><el-button size="small" type="text"><i class="el-icon-delete" /> 删除 </el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -64,8 +64,8 @@
       :total="count"
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper" />
-    <el-dialog :visible.sync="roleMenu" width="30%">
-      <div class="dialog-title-container" slot="title" ref="roleTitle" />
+    <el-dialog v-model="roleMenu" width="30%">
+      <template #title><div class="dialog-title-container" ref="roleTitle" /></template>
       <el-form label-width="80px" size="medium" :model="roleForm">
         <el-form-item label="角色名">
           <el-input v-model="roleForm.roleName" style="width: 250px" />
@@ -74,13 +74,13 @@
           <el-tree :data="menus" :default-checked-keys="roleForm.menuIds" show-checkbox node-key="id" ref="menuTree" />
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="roleMenu = false">取 消</el-button>
         <el-button type="primary" @click="saveOrUpdateRoleMenu"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="roleResource" width="30%" top="9vh">
-      <div class="dialog-title-container" slot="title">修改资源权限</div>
+    <el-dialog v-model="roleResource" width="30%" top="9vh">
+      <template #title><div class="dialog-title-container">修改资源权限</div></template>
       <el-form label-width="80px" size="medium" :model="roleForm">
         <el-form-item label="角色名">
           <el-input v-model="roleForm.roleName" style="width: 250px" />
@@ -91,29 +91,34 @@
             :default-checked-keys="roleForm.resourceIds"
             show-checkbox
             node-key="id"
-            ref="resourceTree" />
+            ref="resourceTree" />>
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="roleResource = false">取 消</el-button>
         <el-button type="primary" @click="saveOrUpdateRoleResource"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="isDelete" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="isDelete" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除选中项？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isDelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteRoles(null)"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.role
+    this.current = this.store.pageState.role
     this.listRoles()
   },
   data: function () {
@@ -149,7 +154,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateRolePageState', current)
+      this.store.updateRolePageState(current)
       this.listRoles()
     },
     selectionChange(roles) {

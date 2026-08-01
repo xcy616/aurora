@@ -16,14 +16,14 @@
             <div>{{ item.nickname }}</div>
             <el-dropdown trigger="click" @command="handleCommand">
               <i class="el-icon-more" style="color: #333; cursor: pointer" />
-              <el-dropdown-menu slot="dropdown">
+              <template #dropdown><el-dropdown-menu>
                 <el-dropdown-item :command="'1,' + item.id"> <i class="el-icon-edit" />编辑 </el-dropdown-item>
                 <el-dropdown-item :command="'2,' + item.id"> <i class="el-icon-delete" />删除 </el-dropdown-item>
-              </el-dropdown-menu>
+              </el-dropdown-menu></template>
             </el-dropdown>
           </div>
           <div class="time">
-            {{ item.createTime | dateTime }}
+            {{ $dateTime(item.createTime) }}
             <span class="top" v-if="item.isTop == 1"> <i class="iconfont el-icon-myzhiding" /> 置顶 </span>
             <span class="secret" v-if="item.status == 2"> <i class="iconfont el-icon-mymima" /> 私密 </span>
           </div>
@@ -45,21 +45,26 @@
       :page-size="size"
       :total="count"
       layout="prev, pager, next" />
-    <el-dialog :visible.sync="isdelete" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="isdelete" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除该说说？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isdelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteTalk"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.talkList
+    this.current = this.store.pageState.talkList
     this.listTalks()
   },
   data: function () {
@@ -114,7 +119,7 @@ export default {
     currentChange(current) {
       this.previews = []
       this.current = current
-      this.$store.commit('updateTalkListPageState', current)
+      this.store.updateTalkListPageState(current)
       this.listTalks()
     },
     changeStatus(status) {

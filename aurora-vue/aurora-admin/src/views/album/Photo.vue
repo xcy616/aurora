@@ -51,11 +51,11 @@
               <div class="photo-opreation">
                 <el-dropdown @command="handleCommand">
                   <i class="el-icon-more" style="color: #fff" />
-                  <el-dropdown-menu slot="dropdown">
+                  <template #dropdown><el-dropdown-menu>
                     <el-dropdown-item :command="JSON.stringify(item)">
                       <i class="el-icon-edit" />编辑
                     </el-dropdown-item>
-                  </el-dropdown-menu>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </div>
               <el-image fit="cover" class="photo-img" :src="item.photoSrc" :preview-photoSrc-list="photos" />
@@ -73,8 +73,8 @@
       :page-size="size"
       :total="count"
       layout="prev, pager, next" />
-    <el-dialog :visible.sync="uploadPhoto" width="70%" top="10vh">
-      <div class="dialog-title-container" slot="title">上传照片</div>
+    <el-dialog v-model="uploadPhoto" width="70%" top="10vh">
+      <template #title><div class="dialog-title-container">上传照片</div></template>
       <div class="upload-container">
         <el-upload
           v-show="uploads.length > 0"
@@ -100,11 +100,11 @@
             :show-file-list="false">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">支持上传jpg/png文件</div>
+            <template #tip><div class="el-upload__tip">支持上传jpg/png文件</div></template>
           </el-upload>
         </div>
       </div>
-      <div slot="footer">
+      <template #footer><div>
         <div class="upload-footer">
           <div class="upload-count">共上传{{ uploads.length }}张照片</div>
           <div style="margin-left: auto">
@@ -112,10 +112,10 @@
             <el-button @click="savePhotos" type="primary" :disabled="uploads.length == 0"> 开始上传 </el-button>
           </div>
         </div>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="editPhoto" width="30%">
-      <div class="dialog-title-container" slot="title">修改信息</div>
+    <el-dialog v-model="editPhoto" width="30%">
+      <template #title><div class="dialog-title-container">修改信息</div></template>
       <el-form label-width="80px" size="medium" :model="photoForm">
         <el-form-item label="照片名称">
           <el-input style="width: 220px" v-model="photoForm.photoName" />
@@ -124,21 +124,21 @@
           <el-input style="width: 220px" v-model="photoForm.photoDesc" />
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="editPhoto = false">取 消</el-button>
         <el-button type="primary" @click="updatePhoto"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="batchDeletePhoto" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="batchDeletePhoto" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除选中照片？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="batchDeletePhoto = false">取 消</el-button>
         <el-button type="primary" @click="updatePhotoDelete(null)"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="movePhoto" width="30%">
-      <div class="dialog-title-container" slot="title">移动照片</div>
+    <el-dialog v-model="movePhoto" width="30%">
+      <template #title><div class="dialog-title-container">移动照片</div></template>
       <el-empty v-if="albumList.length < 2" description="暂无其他相册" />
       <el-form v-else label-width="80px" size="medium" :model="photoForm">
         <el-radio-group v-model="albumId">
@@ -154,24 +154,29 @@
           </div>
         </el-radio-group>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="movePhoto = false">取 消</el-button>
         <el-button :disabled="albumId == null" type="primary" @click="updatePhotoAlbum"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 import * as imageConversion from 'image-conversion'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
     this.albumId = this.$route.params.albumId
-    if (this.albumId == this.$store.state.pageState.photo.albumId) {
-      this.current = this.$store.state.pageState.photo.current
+    if (this.albumId == this.store.pageState.photo.albumId) {
+      this.current = this.store.pageState.photo.current
     } else {
       this.current = 1
-      this.$store.commit('updatePhotoPageState', {
+      this.store.updatePhotoPageState({
         albumId: this.$route.params.albumId,
         current: this.current
       })
@@ -242,7 +247,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updatePhotoPageState', {
+      this.store.updatePhotoPageState({
         albumId: this.$route.params.albumId,
         current: this.current
       })

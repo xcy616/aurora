@@ -13,7 +13,7 @@
           size="small"
           placeholder="请输入相册名"
           style="width: 200px"
-          @keyup.enter.native="searchAlbums" />
+          @keyup.enter="searchAlbums" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="searchAlbums">
           搜索
         </el-button>
@@ -26,12 +26,12 @@
           <div class="album-opreation">
             <el-dropdown @command="handleCommand">
               <i class="el-icon-more" style="color: #fff" />
-              <el-dropdown-menu slot="dropdown">
+              <template #dropdown><el-dropdown-menu>
                 <el-dropdown-item :command="'update' + JSON.stringify(item)">
                   <i class="el-icon-edit" />编辑
                 </el-dropdown-item>
                 <el-dropdown-item :command="'delete' + item.id"> <i class="el-icon-delete" />删除 </el-dropdown-item>
-              </el-dropdown-menu>
+              </el-dropdown-menu></template>
             </el-dropdown>
           </div>
           <div class="album-photo-count">
@@ -52,8 +52,8 @@
       :page-size="size"
       :total="count"
       layout="prev, pager, next" />
-    <el-dialog :visible.sync="addOrEdit" width="35%" top="10vh">
-      <div class="dialog-title-container" slot="title" ref="albumTitle" />
+    <el-dialog v-model="addOrEdit" width="35%" top="10vh">
+      <template #title><div class="dialog-title-container" ref="albumTitle" /></template>
       <el-form label-width="80px" size="medium" :model="albumForum">
         <el-form-item label="相册名称">
           <el-input style="width: 220px" v-model="albumForum.albumName" />
@@ -82,18 +82,18 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="addOrEdit = false">取 消</el-button>
         <el-button type="primary" @click="addOrEditAlbum"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="isdelete" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="isdelete" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除该相册？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isdelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteAlbum"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>

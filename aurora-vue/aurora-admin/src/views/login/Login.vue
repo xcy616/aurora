@@ -8,7 +8,7 @@
             v-model="loginForm.username"
             prefix-icon="el-icon-user-solid"
             placeholder="用户名"
-            @keyup.enter.native="login" />
+            @keyup.enter="login" />
         </el-form-item>
         <el-form-item prop="password">
           <el-input
@@ -16,7 +16,7 @@
             prefix-icon="iconfont el-icon-mymima"
             show-password
             placeholder="密码"
-            @keyup.enter.native="login" />
+            @keyup.enter="login" />
         </el-form-item>
       </el-form>
       <el-button type="primary" @click="login">登录</el-button>
@@ -25,8 +25,13 @@
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 import { generaMenu } from '@/assets/js/menu'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   data: function () {
     return {
       loginForm: {
@@ -49,7 +54,7 @@ export default {
           param.append('password', that.loginForm.password)
           that.axios.post('/api/users/login', param).then(({ data }) => {
             if (data.flag) {
-              that.$store.commit('login', data.data)
+              that.store.login(data.data)
               generaMenu()
               that.$message.success('登录成功')
               that.$router.push({ path: '/' })

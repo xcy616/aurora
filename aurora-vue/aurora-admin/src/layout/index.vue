@@ -21,14 +21,19 @@
 <script>
 import NavBar from '@/layout/components/NavBar.vue'
 import SideBar from '@/layout/components/SideBar.vue'
+import { useAppStore } from '@/store'
 export default {
   components: {
     NavBar,
     SideBar
   },
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   computed: {
     isHide() {
-      return this.$store.state.collapse ? 'hideSideBar' : ''
+      return this.store.collapse ? 'hideSideBar' : ''
     }
   }
 }

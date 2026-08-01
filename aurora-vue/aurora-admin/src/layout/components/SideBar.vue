@@ -3,22 +3,22 @@
     <el-menu
       class="side-nav-bar"
       router
-      :collapse="this.$store.state.collapse"
-      :default-active="this.$route.path"
+      :collapse="store.collapse"
+      :default-active="$route.path"
       background-color="#304156"
       text-color="#BFCBD9"
       active-text-color="#409EFF">
-      <template v-for="route of this.$store.state.userMenus">
+      <template v-for="route of store.userMenus">
         <template v-if="route.name && route.children && !route.hidden">
           <el-submenu :key="route.path" :index="route.path">
-            <template slot="title">
+            <template #title>
               <i :class="route.icon" />
               <span>{{ route.name }}</span>
             </template>
             <template v-for="(item, index) of route.children">
               <el-menu-item v-if="!item.hidden" :key="index" :index="item.path">
                 <i :class="item.icon" />
-                <span slot="title">{{ item.name }}</span>
+                <template #title>{{ item.name }}</template>
               </el-menu-item>
             </template>
           </el-submenu>
@@ -26,13 +26,23 @@
         <template v-else-if="!route.hidden">
           <el-menu-item :index="route.path" :key="route.path">
             <i :class="route.children[0].icon" />
-            <span slot="title">{{ route.children[0].name }}</span>
+            <template #title>{{ route.children[0].name }}</template>
           </el-menu-item>
         </template>
       </template>
     </el-menu>
   </div>
 </template>
+
+<script>
+import { useAppStore } from '@/store'
+export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  }
+}
+</script>
 
 <style scoped>
 .side-nav-bar:not(.el-menu--collapse) {

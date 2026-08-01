@@ -14,8 +14,8 @@
       <el-button type="danger" size="medium" @click="openModel" style="margin-left: 10px"> 发布文章 </el-button>
     </div>
     <mavon-editor ref="md" v-model="article.articleContent" @imgAdd="uploadImg" style="height: calc(100vh - 260px)" />
-    <el-dialog :visible.sync="addOrEdit" width="40%" top="3vh">
-      <div class="dialog-title-container" slot="title">发布文章</div>
+    <el-dialog v-model="addOrEdit" width="40%" top="3vh">
+      <template #title><div class="dialog-title-container">发布文章</div></template>
       <el-form label-width="80px" size="medium" :model="article">
         <el-form-item label="文章分类">
           <el-tag
@@ -34,9 +34,9 @@
               :fetch-suggestions="searchCategories"
               placeholder="请输入分类名搜索，enter可添加自定义分类"
               :trigger-on-focus="false"
-              @keyup.enter.native="saveCategory"
+              @keyup.enter="saveCategory"
               @select="handleSelectCategories">
-              <template slot-scope="{ item }">
+              <template #default="{ item }">
                 <div>{{ item.categoryName }}</div>
               </template>
             </el-autocomplete>
@@ -45,7 +45,7 @@
                 {{ item.categoryName }}
               </div>
             </div>
-            <el-button type="success" plain slot="reference" size="small"> 添加分类 </el-button>
+            <template #reference><el-button type="success" plain size="small"> 添加分类 </el-button></template>
           </el-popover>
         </el-form-item>
         <el-form-item label="文章标签">
@@ -65,9 +65,9 @@
               :fetch-suggestions="searchTags"
               placeholder="请输入标签名搜索，enter可添加自定义标签"
               :trigger-on-focus="false"
-              @keyup.enter.native="saveTag"
+              @keyup.enter="saveTag"
               @select="handleSelectTag">
-              <template slot-scope="{ item }">
+              <template #default="{ item }">
                 <div>{{ item.tagName }}</div>
               </template>
             </el-autocomplete>
@@ -77,7 +77,7 @@
                 {{ item.tagName }}
               </el-tag>
             </div>
-            <el-button type="primary" plain slot="reference" size="small"> 添加标签 </el-button>
+            <template #reference><el-button type="primary" plain size="small"> 添加标签 </el-button></template>
           </el-popover>
         </el-form-item>
         <el-form-item label="文章类型">
@@ -131,17 +131,22 @@
           <el-input type="textarea" autosize="true" v-model="article.articleAbstract" placeholder="默认取文章前500个字符" />
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="addOrEdit = false">取 消</el-button>
         <el-button type="danger" @click="saveOrUpdateArticle"> 发 表 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 import * as imageConversion from 'image-conversion'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
     const path = this.$route.path
     const arr = path.split('/')
@@ -263,9 +268,9 @@ export default {
       this.axios.post('/api/admin/articles', this.article).then(({ data }) => {
         if (data.flag) {
           if (this.article.id === null) {
-            this.$store.commit('removeTab', '发布文章')
+            this.store.removeTab('发布文章')
           } else {
-            this.$store.commit('removeTab', '修改文章')
+            this.store.removeTab('修改文章')
           }
           sessionStorage.removeItem('article')
           this.$router.push({ path: '/article-list' })
@@ -306,9 +311,9 @@ export default {
       this.axios.post('/api/admin/articles', this.article).then(({ data }) => {
         if (data.flag) {
           if (this.article.id === null) {
-            this.$store.commit('removeTab', '发布文章')
+            this.store.removeTab('发布文章')
           } else {
-            this.$store.commit('removeTab', '修改文章')
+            this.store.removeTab('修改文章')
           }
           sessionStorage.removeItem('article')
           this.$router.push({ path: '/article-list' })

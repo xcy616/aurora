@@ -1,50 +1,72 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import './assets/css/index.css'
-import './assets/css/iconfont.css'
-import config from './assets/js/config'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import * as Icons from '@element-plus/icons-vue'
 import axios from 'axios'
-import VueAxios from 'vue-axios'
-import ECharts from 'vue-echarts'
-import 'echarts/lib/chart/line'
-import 'echarts/lib/chart/pie'
-import 'echarts/lib/chart/bar'
-import 'echarts/lib/chart/map'
-import 'echarts/lib/component/tooltip'
-import 'echarts/lib/component/legend'
-import 'echarts/lib/component/title'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
-import VueCalendarHeatmap from 'vue-calendar-heatmap'
-import tagCloud from './components/tag-cloud'
+import VueECharts from 'vue-echarts'
+import * as echarts from 'echarts'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, LineChart, MapChart, PieChart } from 'echarts/charts'
+import { LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
+import { CalendarHeatmap } from 'vue3-calendar-heatmap'
+import TagCloud from './components/tag-cloud'
+import config from './assets/js/config'
 import dayjs from 'dayjs'
 import Md_Katex from '@iktakahiro/markdown-it-katex'
-import mermaidPlugin from "@agoose77/markdown-it-mermaid";
+import mermaidPlugin from '@agoose77/markdown-it-mermaid'
+import './assets/css/index.css'
+import './assets/css/element-icons.css'
+import './assets/css/iconfont.css'
+import './assets/js/china'
+import { useAppStore } from './store'
 
-Vue.config.productionTip = false
-Vue.prototype.config = config
-Vue.use(mavonEditor)
-Vue.use(ElementUI)
-Vue.use(tagCloud)
-Vue.use(VueCalendarHeatmap)
-Vue.use(VueAxios, axios)
-Vue.component('v-chart', ECharts)
-Vue.prototype.$moment = dayjs
-mavonEditor.markdownIt.set({}).use(Md_Katex).use(mermaidPlugin);
+use([
+  CanvasRenderer,
+  LineChart,
+  BarChart,
+  PieChart,
+  MapChart,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent
+])
 
-Vue.filter('date', function (value, formatStr = 'YYYY-MM-DD') {
-  return dayjs(value).format(formatStr)
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.use(router)
+app.use(ElementPlus)
+app.use(mavonEditor)
+
+// 全局注册 Element Plus 图标组件
+Object.entries(Icons).forEach(([name, component]) => {
+  app.component(name, component)
 })
 
-Vue.filter('dateTime', function (value, formatStr = 'YYYY-MM-DD HH:mm:ss') {
-  return dayjs(value).format(formatStr)
-})
+app.component('v-chart', VueECharts)
+app.component('calendar-heatmap', CalendarHeatmap)
+app.component('tag-cloud', TagCloud)
+
+const globalProperties = app.config.globalProperties
+globalProperties.config = config
+globalProperties.$moment = dayjs
+globalProperties.axios = axios
+globalProperties.$date = (value, formatStr = 'YYYY-MM-DD') => dayjs(value).format(formatStr)
+globalProperties.$dateTime = (value, formatStr = 'YYYY-MM-DD HH:mm:ss') => dayjs(value).format(formatStr)
+
+if (mavonEditor.markdownIt) {
+  mavonEditor.markdownIt.set({}).use(Md_Katex).use(mermaidPlugin)
+}
 
 NProgress.configure({
   easing: 'ease',
@@ -56,9 +78,10 @@ NProgress.configure({
 
 router.beforeEach((to, from, next) => {
   NProgress.start()
+  const store = useAppStore()
   if (to.path == '/login') {
     next()
-  } else if (!store.state.userInfo) {
+  } else if (!store.userInfo) {
     next({ path: '/login' })
   } else {
     next()
@@ -78,14 +101,14 @@ axios.interceptors.response.use(
   (response) => {
     switch (response.data.code) {
       case 40001:
-        Vue.prototype.$message({
+        globalProperties.$message({
           type: 'error',
           message: response.data.message
         })
         router.push({ path: '/login' })
         break
       case 50000:
-        Vue.prototype.$message({
+        globalProperties.$message({
           type: 'error',
           message: response.data.message
         })
@@ -98,8 +121,18 @@ axios.interceptors.response.use(
   }
 )
 
-new Vue({
-  router,
-  store,
-  render: (h) => h(App)
-}).$mount('#app')
+// 从 sessionStorage 恢复并持久化 Pinia 状态
+const store = useAppStore()
+try {
+  const saved = sessionStorage.getItem('aurora-admin')
+  if (saved) {
+    store.$patch(JSON.parse(saved))
+  }
+} catch (e) {
+  sessionStorage.removeItem('aurora-admin')
+}
+store.$subscribe((mutation, state) => {
+  sessionStorage.setItem('aurora-admin', JSON.stringify(state))
+})
+
+app.mount('#app')

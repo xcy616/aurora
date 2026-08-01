@@ -1,12 +1,15 @@
 import Layout from '@/layout/index.vue'
 import router from '@/router'
-import store from '@/store'
+import { useAppStore } from '@/store'
+import { ElMessage } from 'element-plus'
 import axios from 'axios'
-import Vue from 'vue'
+
+const viewModules = import.meta.glob('@/views/**/*.vue')
 
 export function generaMenu() {
   axios.get('/api/admin/user/menus').then(({ data }) => {
     if (data.flag) {
+      const store = useAppStore()
       let userMenus = data.data
       userMenus.forEach((item) => {
         if (item.icon != null) {
@@ -22,17 +25,17 @@ export function generaMenu() {
           })
         }
       })
-      store.commit('saveUserMenus', userMenus)
+      store.saveUserMenus(userMenus)
       userMenus.forEach((item) => {
         router.addRoute(item)
       })
     } else {
-      Vue.prototype.$message.error(data.message)
+      ElMessage.error(data.message)
       router.push({ path: '/login' })
     }
   })
 }
 
 export const loadView = (view) => {
-  return (resolve) => require([`@/views${view}`], resolve)
+  return viewModules[`/src/views${view}`]
 }

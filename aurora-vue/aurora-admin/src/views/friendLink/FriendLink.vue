@@ -18,7 +18,7 @@
           size="small"
           placeholder="请输入友链名"
           style="width: 200px"
-          @keyup.enter.native="searchLinks" />
+          @keyup.enter="searchLinks" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="searchLinks">
           搜索
         </el-button>
@@ -27,7 +27,7 @@
     <el-table border :data="linkList" @selection-change="selectionChange" v-loading="loading">
       <el-table-column type="selection" width="55" />
       <el-table-column prop="linkAvatar" label="链接头像" align="center" width="180">
-        <template slot-scope="scope">
+        <template #default="scope">
           <img :src="scope.row.linkAvatar" width="40" height="40" />
         </template>
       </el-table-column>
@@ -35,16 +35,16 @@
       <el-table-column prop="linkAddress" label="链接地址" align="center" />
       <el-table-column prop="linkIntro" label="链接介绍" align="center" />
       <el-table-column prop="createTime" label="创建时间" width="140" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.createTime | date }}
+          {{ $date(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="160">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="openModel(scope.row)"> 编辑 </el-button>
+        <template #default="scope">
+          <el-button type="primary" size="small" @click="openModel(scope.row)"> 编辑 </el-button>
           <el-popconfirm title="确定删除吗？" style="margin-left: 1rem" @confirm="deleteLink(scope.row.id)">
-            <el-button size="mini" type="danger" slot="reference"> 删除 </el-button>
+            <template #reference><el-button size="small" type="danger"> 删除 </el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -59,16 +59,16 @@
       :total="count"
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper" />
-    <el-dialog :visible.sync="deleteFlag" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="deleteFlag" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除选中项？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="deleteFlag = false">取 消</el-button>
         <el-button type="primary" @click="deleteLink(null)"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :visible.sync="addOrEdit" width="30%">
-      <div class="dialog-title-container" slot="title" ref="linkTitle" />
+    <el-dialog v-model="addOrEdit" width="30%">
+      <template #title><div class="dialog-title-container" ref="linkTitle" /></template>
       <el-form label-width="80px" size="medium" :model="linkForm">
         <el-form-item label="链接名">
           <el-input style="width: 250px" v-model="linkForm.linkName" />
@@ -83,18 +83,23 @@
           <el-input style="width: 250px" v-model="linkForm.linkIntro" />
         </el-form-item>
       </el-form>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="addOrEdit = false">取 消</el-button>
         <el-button type="primary" @click="addOrEditCategory"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.friendLink
+    this.current = this.store.pageState.friendLink
     this.listLinks()
   },
   data: function () {
@@ -134,7 +139,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateFriendLinkPageState', current)
+      this.store.updateFriendLinkPageState(current)
       this.listLinks()
     },
     deleteLink(id) {

@@ -24,11 +24,11 @@
             :inactive-value="0" />
           <el-dropdown trigger="click" @command="handleCommand" style="margin-right: 16px">
             <span class="talk-status"> {{ dropdownTitle }}<i class="el-icon-arrow-down el-icon--right" /> </span>
-            <el-dropdown-menu slot="dropdown">
+            <template #dropdown><el-dropdown-menu>
               <el-dropdown-item v-for="(item, index) of statuses" :key="index" :command="item.status">
                 {{ item.desc }}
               </el-dropdown-item>
-            </el-dropdown-menu>
+            </el-dropdown-menu></template>
           </el-dropdown>
           <el-button type="primary" size="small" @click="saveOrUpdateTalk" :disabled="talk.content == ''">
             发布

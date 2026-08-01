@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-
-Vue.use(VueRouter)
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
@@ -11,15 +8,15 @@ const routes = [
     component: () => import('../views/login/Login.vue')
   }
 ]
-const createRouter = () =>
-  new VueRouter({
-    mode: 'history',
+const createRouterFn = () =>
+  createRouter({
+    history: createWebHistory(),
     routes: routes
   })
-const router = createRouter()
+const router = createRouterFn()
 
 export function resetRouter() {
-  const newRouter = createRouter()
+  const newRouter = createRouterFn()
   router.matcher = newRouter.matcher
 }
 

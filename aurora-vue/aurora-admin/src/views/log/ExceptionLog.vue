@@ -17,7 +17,7 @@
           size="small"
           placeholder="请输入操作描述"
           style="width: 200px"
-          @keyup.enter.native="searchLogs" />
+          @keyup.enter="searchLogs" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="searchLogs">
           搜索
         </el-button>
@@ -28,7 +28,7 @@
       <el-table-column prop="optUri" label="请求接口" align="center" width="160" />
       <el-table-column prop="optDesc" label="操作描述" align="center" width="150" />
       <el-table-column prop="requetMethod" label="请求方式" align="center" width="150">
-        <template slot-scope="scope" v-if="scope.row.requestMethod">
+        <template #default="scope" v-if="scope.row.requestMethod">
           <el-tag :type="tagType(scope.row.requestMethod)">
             {{ scope.row.requestMethod }}
           </el-tag>
@@ -37,18 +37,16 @@
       <el-table-column prop="ipAddress" label="登录ip" align="center" width="160" />
       <el-table-column prop="ipSource" label="登录地址" align="center" width="190" />
       <el-table-column prop="createTime" label="操作日期" align="center" width="210">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.createTime | dateTime }}
+          {{ $dateTime(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="150">
-        <template slot-scope="scope">
-          <el-button size="mini" type="text" slot="reference" @click="check(scope.row)">
-            <i class="el-icon-view" /> 查看
-          </el-button>
+        <template #default="scope">
+          <el-button size="small" type="text" @click="check(scope.row)"><i class="el-icon-view" /> 查看</el-button>
           <el-popconfirm title="确定删除吗？" style="margin-left: 10px" @confirm="deleteLog(scope.row.id)">
-            <el-button size="mini" type="text" slot="reference"> <i class="el-icon-delete" /> 删除 </el-button>
+            <template #reference><el-button size="small" type="text"><i class="el-icon-delete" /> 删除 </el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -63,9 +61,9 @@
       :total="count"
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper" />
-    <el-dialog :visible.sync="isCheck" append-to-body top="20px" width="80%" destroy-on-close>
-      <div class="dialog-title-container" slot="title"><i class="el-icon-more" />详细信息</div>
-      <el-form ref="form" :model="exceptionLog" label-width="100px" size="mini">
+    <el-dialog v-model="isCheck" append-to-body top="20px" width="80%" destroy-on-close>
+      <template #title><div class="dialog-title-container"><i class="el-icon-more" />详细信息</div></template>
+      <el-form ref="form" :model="exceptionLog" label-width="100px" size="small">
         <el-form-item label="操作接口：">
           {{ exceptionLog.optUri }}
         </el-form-item>
@@ -87,21 +85,26 @@
         </div>
       </el-form>
     </el-dialog>
-    <el-dialog :visible.sync="isDelete" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="isDelete" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除选中项？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isDelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteLog(null)"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.exceptionLog
+    this.current = this.store.pageState.exceptionLog
     this.listLogs()
   },
   data() {
@@ -132,12 +135,12 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateExceptionLogPageState', current)
+      this.store.updateExceptionLogPageState(current)
       this.listLogs()
     },
     searchLogs() {
       this.current = 1
-      this.$store.commit('updateExceptionLogPageState', this.current)
+      this.store.updateExceptionLogPageState(this.current)
       this.listLogs()
     },
     listLogs() {

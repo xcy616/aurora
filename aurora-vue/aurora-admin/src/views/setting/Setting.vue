@@ -30,21 +30,21 @@
         <el-form label-width="70px" :model="passwordForm" style="width: 320px">
           <el-form-item label="旧密码">
             <el-input
-              @keyup.enter.native="updatePassword"
+              @keyup.enter="updatePassword"
               v-model="passwordForm.oldPassword"
               size="small"
               show-password />
           </el-form-item>
           <el-form-item label="新密码">
             <el-input
-              @keyup.enter.native="updatePassword"
+              @keyup.enter="updatePassword"
               v-model="passwordForm.newPassword"
               size="small"
               show-password />
           </el-form-item>
           <el-form-item label="确认密码">
             <el-input
-              @keyup.enter.native="updatePassword"
+              @keyup.enter="updatePassword"
               v-model="passwordForm.confirmPassword"
               size="small"
               show-password />
@@ -57,13 +57,18 @@
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   data: function () {
     return {
       infoForm: {
-        nickname: this.$store.state.userInfo.nickname,
-        intro: this.$store.state.userInfo.intro,
-        website: this.$store.state.userInfo.website
+        nickname: this.store.userInfo.nickname,
+        intro: this.store.userInfo.intro,
+        website: this.store.userInfo.website
       },
       passwordForm: {
         oldPassword: '',
@@ -85,7 +90,7 @@ export default {
     updateAvatar(response) {
       if (response.flag) {
         this.$message.success(response.message)
-        this.$store.commit('updateAvatar', response.data)
+        this.store.updateAvatar(response.data)
       } else {
         this.$message.error(response.message)
       }
@@ -101,7 +106,7 @@ export default {
             title: '成功',
             message: '修改成功'
           })
-          this.$store.commit('updateUserInfo', this.infoForm)
+          this.store.updateUserInfo(this.infoForm)
         } else {
           this.$notify.error({
             title: '失败',
@@ -147,7 +152,7 @@ export default {
   },
   computed: {
     avatar() {
-      return this.$store.state.userInfo.avatar
+      return this.store.userInfo.avatar
     }
   }
 }

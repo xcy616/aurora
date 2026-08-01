@@ -15,20 +15,22 @@
           <i class="iconfont el-icon-myicwindowzoom48px" />
         </div>
         <el-dropdown @command="handleCommand">
-          <el-avatar :size="40" :src="this.$store.state.userInfo.avatar" />
+          <el-avatar :size="40" :src="store.userInfo.avatar" />
           <i class="el-icon-caret-bottom" />
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="setting"> <i class="el-icon-s-custom" />个人中心 </el-dropdown-item>
-            <el-dropdown-item command="logout" divided>
-              <i class="iconfont el-icon-mytuichu" />退出登录
-            </el-dropdown-item>
-          </el-dropdown-menu>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="setting"> <i class="el-icon-s-custom" />个人中心 </el-dropdown-item>
+              <el-dropdown-item command="logout" divided>
+                <i class="iconfont el-icon-mytuichu" />退出登录
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
         </el-dropdown>
       </div>
     </div>
     <div class="tabs-view-container">
       <div class="tabs-wrapper">
-        <span :class="isActive(item)" v-for="item of this.$store.state.tabList" :key="item.path" @click="goTo(item)">
+        <span :class="isActive(item)" v-for="item of store.tabList" :key="item.path" @click="goTo(item)">
           {{ item.name }}
           <i class="el-icon-close" v-if="item.path != '/'" @click.stop="removeTab(item)" />
         </span>
@@ -40,7 +42,12 @@
 
 <script>
 import { resetRouter } from '@/router'
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
     let matched = this.$route.matched.filter((item) => item.name)
     const first = matched[0]
@@ -48,7 +55,7 @@ export default {
       matched = [{ path: '/', name: '首页' }].concat(matched)
     }
     this.breadcrumbs = matched
-    this.$store.commit('saveTab', this.$route)
+    this.store.saveTab(this.$route)
   },
   data: function () {
     return {
@@ -62,14 +69,14 @@ export default {
       this.$router.push({ path: tab.path })
     },
     removeTab(tab) {
-      this.$store.commit('removeTab', tab)
+      this.store.removeTab(tab)
       if (tab.path == this.$route.path) {
-        var tabList = this.$store.state.tabList
+        var tabList = this.store.tabList
         this.$router.push({ path: tabList[tabList.length - 1].path })
       }
     },
     trigger() {
-      this.$store.commit('trigger')
+      this.store.trigger()
     },
     handleCommand(command) {
       if (command == 'setting') {
@@ -77,15 +84,15 @@ export default {
       }
       if (command == 'logout') {
         this.axios.post('/api/users/logout').then(({ data }) => {
-          this.$store.commit('logout')
-          this.$store.commit('resetTab')
+          this.store.logout()
+          this.store.resetTab()
           resetRouter()
           this.$router.push({ path: '/login' })
         })
       }
     },
     closeAllTab() {
-      this.$store.commit('resetTab')
+      this.store.resetTab()
       this.$router.push({ path: '/' })
     },
     fullScreen() {
@@ -124,7 +131,7 @@ export default {
       }
     },
     isFold() {
-      return this.$store.state.collapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'
+      return this.store.collapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'
     }
   }
 }

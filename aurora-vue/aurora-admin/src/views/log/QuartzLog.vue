@@ -8,7 +8,7 @@
             size="small"
             v-model="searchParams.jobName"
             placeholder="请输入任务名称"
-            @keyup.enter.native="listJobLogs" />
+            @keyup.enter="listJobLogs" />
         </el-form-item>
         <el-form-item label="任务组名">
           <el-select
@@ -68,13 +68,13 @@
       @selection-change="selectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="日志编号" width="80" align="center" prop="id">
-        <template slot-scope="scope">
+        <template #default="scope">
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
       <el-table-column label="任务名称" align="center" prop="jobName" :show-overflow-tooltip="true" />
       <el-table-column label="任务组名" align="center" prop="jobGroup" :show-overflow-tooltip="true">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag>
             {{ scope.row.jobGroup }}
           </el-tag>
@@ -83,19 +83,19 @@
       <el-table-column label="调用目标字符串" align="center" prop="invokeTarget" :show-overflow-tooltip="true" />
       <el-table-column label="日志信息" align="center" prop="jobMessage" :show-overflow-tooltip="true" />
       <el-table-column label="执行状态" align="center" prop="status">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag v-if="scope.row.status === 1" type="success">成功</el-tag>
           <el-tag v-if="scope.row.status === 0" type="danger">失败</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="执行时间" align="center" prop="createTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ scope.row.startTime | dateTime }}</span>
+        <template #default="scope">
+          <span>{{ $dateTime(scope.row.startTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-view" @click="changeOpen(scope.row)">详细</el-button>
+        <template #default="scope">
+          <el-button size="small" type="text" icon="el-icon-view" @click="changeOpen(scope.row)">详细</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -111,11 +111,11 @@
       layout="total, sizes, prev, pager, next, jumper" />
     <el-dialog
       title="调度日志详细"
-      :visible.sync="open"
+      v-model="open"
       :width="jobLog.status == 1 ? '700px' : '80%'"
       append-to-body
       destroy-on-close>
-      <el-form ref="form" :model="jobLog" label-width="100px" size="mini">
+      <el-form ref="form" :model="jobLog" label-width="100px" size="small">
         <el-row>
           <el-col :span="12">
             <el-form-item label="日志序号：">{{ jobLog.id }}</el-form-item>
@@ -123,7 +123,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="任务分组：">{{ jobLog.jobGroup }}</el-form-item>
-            <el-form-item label="执行时间：">{{ jobLog.startTime | dateTime }}</el-form-item>
+            <el-form-item label="执行时间：">{{ $dateTime(jobLog.startTime) }}</el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="调用方法：">{{ jobLog.invokeTarget }}</el-form-item>
@@ -146,26 +146,31 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="open = false">关闭</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
     if (this.$route.params.quartzId == 'all') {
       this.jobId = 0
     } else if (this.$route.params.quartzId !== null) {
       this.jobId = this.$route.params.quartzId
     }
-    if (this.jobId == this.$store.state.pageState.quartzLog.jobId) {
-      this.current = this.$store.state.pageState.quartzLog.current
+    if (this.jobId == this.store.pageState.quartzLog.jobId) {
+      this.current = this.store.pageState.quartzLog.current
     } else {
       this.current = 1
-      this.$store.commit('updateQuartzLogPageState', {
+      this.store.updateQuartzLogPageState({
         jobId: this.jobId,
         current: this.current
       })
@@ -223,7 +228,7 @@ export default {
     },
     searchLogs() {
       this.current = 1
-      this.$store.commit('updateQuartzLogPageState', {
+      this.store.updateQuartzLogPageState({
         jobId: this.jobId,
         current: this.current
       })
@@ -240,7 +245,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateQuartzLogPageState', {
+      this.store.updateQuartzLogPageState({
         jobId: this.jobId,
         current: this.current
       })

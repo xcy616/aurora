@@ -7,7 +7,7 @@
           placeholder="请输入任务名称"
           clearable
           size="small"
-          @keyup.enter.native="listJobs" />
+          @keyup.enter="listJobs" />
       </el-form-item>
       <el-form-item label="任务组名" prop="jobGroup">
         <el-select
@@ -53,7 +53,7 @@
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="任务名称" width="160" align="center" prop="jobName" :show-overflow-tooltip="true" />
         <el-table-column label="任务组名" align="center" prop="jobGroup">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-tag>
               {{ scope.row.jobGroup }}
             </el-tag>
@@ -62,7 +62,7 @@
         <el-table-column label="调用目标字符串" align="center" prop="invokeTarget" :show-overflow-tooltip="true" />
         <el-table-column label="cron执行表达式" align="center" prop="cronExpression" :show-overflow-tooltip="true" />
         <el-table-column label="状态" align="center">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-switch
               v-model="scope.row.status"
               active-color="#13ce66"
@@ -73,28 +73,28 @@
           </template>
         </el-table-column>
         <el-table-column label="创建时间" align="center" width="160">
-          <template slot-scope="scope">
-            {{ scope.row.createTime | dateTime }}
+          <template #default="scope">
+            {{ $dateTime(scope.row.createTime) }}
           </template>
         </el-table-column>
         <el-table-column label="备注" align="center" width="160">
-          <template slot-scope="scope">
+          <template #default="scope">
             {{ scope.row.remark }}
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-          <template slot-scope="scope">
-            <el-button size="mini" type="text" @click="handleChange(scope.row.id)">编辑</el-button>
+          <template #default="scope">
+            <el-button size="small" type="text" @click="handleChange(scope.row.id)">编辑</el-button>
             <el-popconfirm title="确定删除吗？" style="margin-left: 10px" @confirm="deleteJobs(scope.row.id)">
-              <el-button size="mini" type="text" slot="reference">删除</el-button>
+            <template #reference><el-button size="small" type="text">删除</el-button></template>
             </el-popconfirm>
-            <el-dropdown size="mini" @command="(command) => handleCommand(command, scope.row)">
-              <el-button size="mini" type="text" style="margin-left: 9px">更多</el-button>
-              <el-dropdown-menu slot="dropdown">
+            <el-dropdown size="small" @command="(command) => handleCommand(command, scope.row)">
+              <el-button size="small" type="text" style="margin-left: 9px">更多</el-button>
+              <template #dropdown><el-dropdown-menu>
                 <el-dropdown-item command="handleRun" icon="el-icon-caret-right">执行一次</el-dropdown-item>
                 <el-dropdown-item command="handleView" icon="el-icon-view">任务详细</el-dropdown-item>
                 <el-dropdown-item command="handleJobLog" icon="el-icon-s-operation">调度日志</el-dropdown-item>
-              </el-dropdown-menu>
+              </el-dropdown-menu></template>
             </el-dropdown>
           </template>
         </el-table-column>
@@ -110,15 +110,15 @@
       :total="count"
       :page-sizes="[10, 20]"
       layout="total, sizes, prev, pager, next, jumper" />
-    <el-dialog :visible.sync="isDelete" width="30%">
-      <div class="dialog-title-container" slot="title"><i class="el-icon-warning" style="color: #ff9900" />提示</div>
+    <el-dialog v-model="isDelete" width="30%">
+      <template #title><div class="dialog-title-container"><i class="el-icon-warning" style="color: #ff9900" />提示</div></template>
       <div style="font-size: 1rem">是否删除选中项？</div>
-      <div slot="footer">
+      <template #footer><div>
         <el-button @click="isDelete = false">取 消</el-button>
         <el-button type="primary" @click="deleteJobs(null)"> 确 定 </el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog :title="title" :visible.sync="dialogFormVisible" width="800px" append-to-body>
+    <el-dialog :title="title" v-model="dialogFormVisible" width="800px" append-to-body>
       <el-form ref="dataForm" :model="job" :rules="rules" label-width="120px">
         <el-row>
           <el-col :span="12">
@@ -133,24 +133,24 @@
           </el-col>
           <el-col :span="24">
             <el-form-item prop="invokeTarget">
-              <span slot="label">
+              <template #label><span>
                 调用方法
                 <el-tooltip placement="top">
-                  <div slot="content">
+                  <template #content><div>
                     Bean调用示例：auroraQuartz.blogParams('blog')
                     <br />Class类调用示例：com.aurora.quartz.AuroraQuartz.blogParams('blog')
                     <br />参数说明：支持字符串，布尔类型，长整型，浮点型，整型
-                  </div>
+                  </div></template>
                   <i class="el-icon-question"></i>
                 </el-tooltip>
-              </span>
+              </span></template>
               <el-input v-model="job.invokeTarget" placeholder="请输入调用目标字符串" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="cron表达式" prop="cronExpression">
               <el-input v-model="job.cronExpression" placeholder="请输入cron执行表达式">
-                <template slot="append">
+                <template #append>
                   <el-button type="primary" @click="handleShowCron">
                     生成表达式
                     <i class="el-icon-time el-icon--right"></i>
@@ -194,16 +194,16 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="handleEditOrUpdate">确 定</el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <el-dialog title="Cron表达式生成器" :visible.sync="openCron" append-to-body destroy-on-close class="scrollbar">
+    <el-dialog title="Cron表达式生成器" v-model="openCron" append-to-body destroy-on-close class="scrollbar">
       <crontab @hide="openCron = false" @fill="crontabFill" :expression="expression"></crontab>
     </el-dialog>
-    <el-dialog title="任务详细" :visible.sync="openView" @closed="afterClosed" width="700px" append-to-body>
-      <el-form ref="form" :model="job" label-width="120px" size="mini">
+    <el-dialog title="任务详细" v-model="openView" @closed="afterClosed" width="700px" append-to-body>
+      <el-form ref="form" :model="job" label-width="120px" size="small">
         <el-row>
           <el-col :span="12">
             <el-form-item label="任务编号：">{{ job.id }}</el-form-item>
@@ -213,13 +213,13 @@
             <el-form-item label="任务分组：">
               {{ job.jobGroup }}
             </el-form-item>
-            <el-form-item label="创建时间：">{{ job.createTime | dateTime }}</el-form-item>
+            <el-form-item label="创建时间：">{{ $dateTime(job.createTime) }}</el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="cron表达式：">{{ job.cronExpression }}</el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="下次执行时间：">{{ job.nextValidTime | dateTime }}</el-form-item>
+            <el-form-item label="下次执行时间：">{{ $dateTime(job.nextValidTime) }}</el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="调用目标方法：">{{ job.invokeTarget }}</el-form-item>
@@ -253,19 +253,24 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="openView = false">关 闭</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </el-card>
 </template>
 <script>
-import Crontab from '@/components/Crontab'
+import { useAppStore } from '@/store'
+import Crontab from '@/components/Crontab/index.vue'
 import router from '@/router'
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   components: { Crontab },
   created() {
-    this.current = this.$store.state.pageState.quartz
+    this.current = this.store.pageState.quartz
     this.listJobGroups()
     this.listJobs()
   },
@@ -302,7 +307,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateQuartzPageState', current)
+      this.store.updateQuartzPageState(current)
       this.listJobs()
     },
     listJobGroups() {

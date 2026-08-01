@@ -9,7 +9,7 @@
           size="small"
           placeholder="请输入用户昵称"
           style="width: 200px"
-          @keyup.enter.native="listOnlineUsers" />
+          @keyup.enter="listOnlineUsers" />
         <el-button type="primary" size="small" icon="el-icon-search" style="margin-left: 1rem" @click="listOnlineUsers">
           搜索
         </el-button>
@@ -18,7 +18,7 @@
     <el-table v-loading="loading" :data="users">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column prop="avatar" label="头像" align="center" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <img :src="scope.row.avatar" width="40" height="40" />
         </template>
       </el-table-column>
@@ -28,15 +28,15 @@
       <el-table-column prop="browser" label="浏览器" align="center" width="160" />
       <el-table-column prop="os" label="操作系统" align="center" />
       <el-table-column prop="lastLoginTime" label="登录时间" align="center" width="200">
-        <template slot-scope="scope">
+        <template #default="scope">
           <i class="el-icon-time" style="margin-right: 5px" />
-          {{ scope.row.lastLoginTime | dateTime }}
+          {{ $dateTime(scope.row.lastLoginTime) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="150">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-popconfirm title="确定下线吗？" style="margin-left: 10px" @confirm="removeOnlineUser(scope.row)">
-            <el-button size="mini" type="text" slot="reference"> <i class="el-icon-delete" /> 下线 </el-button>
+            <template #reference><el-button size="small" type="text"><i class="el-icon-delete" /> 下线 </el-button></template>
           </el-popconfirm>
         </template>
       </el-table-column>
@@ -55,11 +55,16 @@
 </template>
 
 <script>
+import { useAppStore } from '@/store'
 import router from '@/router'
 
 export default {
+  setup() {
+    const store = useAppStore()
+    return { store }
+  },
   created() {
-    this.current = this.$store.state.pageState.online
+    this.current = this.store.pageState.online
     this.listOnlineUsers()
   },
   data() {
@@ -96,7 +101,7 @@ export default {
     },
     currentChange(current) {
       this.current = current
-      this.$store.commit('updateOnlinePageState', current)
+      this.store.updateOnlinePageState(current)
       this.listOnlineUsers()
     },
     removeOnlineUser(user) {
@@ -106,7 +111,7 @@ export default {
             title: '成功',
             message: data.message
           })
-          if (user.userInfoId == this.$store.state.userInfo.id) {
+          if (user.userInfoId == this.store.userInfo.id) {
             router.push({ path: '/login' })
             sessionStorage.removeItem('token')
           }

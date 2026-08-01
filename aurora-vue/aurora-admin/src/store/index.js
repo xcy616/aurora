@@ -1,11 +1,7 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate'
+import { defineStore } from 'pinia'
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  state: {
+export const useAppStore = defineStore('app', {
+  state: () => ({
     collapse: false,
     tabList: [{ name: '首页', path: '/' }],
     userInfo: null,
@@ -32,91 +28,86 @@ export default new Vuex.Store({
         current: 1
       }
     }
-  },
-  mutations: {
-    saveTab(state, tab) {
-      if (state.tabList.findIndex((item) => item.path === tab.path) == -1) {
-        state.tabList.push({ name: tab.name, path: tab.path })
+  }),
+  actions: {
+    saveTab(tab) {
+      if (this.tabList.findIndex((item) => item.path === tab.path) == -1) {
+        this.tabList.push({ name: tab.name, path: tab.path })
       }
     },
-    removeTab(state, tab) {
-      var index = state.tabList.findIndex((item) => item.name === tab.name)
-      state.tabList.splice(index, 1)
+    removeTab(tab) {
+      const index = this.tabList.findIndex((item) => item.name === tab.name)
+      this.tabList.splice(index, 1)
     },
-    resetTab(state) {
-      state.tabList = [{ name: '首页', path: '/' }]
+    resetTab() {
+      this.tabList = [{ name: '首页', path: '/' }]
     },
-    trigger(state) {
-      state.collapse = !state.collapse
+    trigger() {
+      this.collapse = !this.collapse
     },
-    login(state, user) {
+    login(user) {
       sessionStorage.setItem('token', user.token)
-      state.userInfo = user
+      this.userInfo = user
     },
-    saveUserMenus(state, userMenus) {
-      state.userMenus = userMenus
+    saveUserMenus(userMenus) {
+      this.userMenus = userMenus
     },
-    logout(state) {
-      state.userInfo = null
+    logout() {
+      this.userInfo = null
       sessionStorage.removeItem('token')
-      state.userMenus = []
+      this.userMenus = []
     },
-    updateAvatar(state, avatar) {
-      state.userInfo.avatar = avatar
+    updateAvatar(avatar) {
+      this.userInfo.avatar = avatar
     },
-    updateUserInfo(state, user) {
-      state.userInfo.nickname = user.nickname
-      state.userInfo.intro = user.intro
-      state.userInfo.webSite = user.webSite
+    updateUserInfo(user) {
+      this.userInfo.nickname = user.nickname
+      this.userInfo.intro = user.intro
+      this.userInfo.webSite = user.webSite
     },
-    updateArticleListPageState(state, current) {
-      state.pageState.articleList = current
+    updateArticleListPageState(current) {
+      this.pageState.articleList = current
     },
-    updateCategoryPageState(state, current) {
-      state.pageState.category = current
+    updateCategoryPageState(current) {
+      this.pageState.category = current
     },
-    updateTagPageState(state, current) {
-      state.pageState.tag = current
+    updateTagPageState(current) {
+      this.pageState.tag = current
     },
-    updateCommentPageState(state, current) {
-      state.pageState.comment = current
+    updateCommentPageState(current) {
+      this.pageState.comment = current
     },
-    updateTalkListPageState(state, current) {
-      state.pageState.talkList = current
+    updateTalkListPageState(current) {
+      this.pageState.talkList = current
     },
-    updateUserPageState(state, current) {
-      state.pageState.user = current
+    updateUserPageState(current) {
+      this.pageState.user = current
     },
-    updateOnlinePageState(state, current) {
-      state.pageState.online = current
+    updateOnlinePageState(current) {
+      this.pageState.online = current
     },
-    updateRolePageState(state, current) {
-      state.pageState.role = current
+    updateRolePageState(current) {
+      this.pageState.role = current
     },
-    updateQuartzPageState(state, current) {
-      state.pageState.quartz = current
+    updateQuartzPageState(current) {
+      this.pageState.quartz = current
     },
-    updateFriendLinkPageState(state, current) {
-      state.pageState.friendLink = current
+    updateFriendLinkPageState(current) {
+      this.pageState.friendLink = current
     },
-    updateOperationLogPageState(state, current) {
-      state.pageState.operationLog = current
+    updateOperationLogPageState(current) {
+      this.pageState.operationLog = current
     },
-    updateExceptionLogPageState(state, current) {
-      state.pageState.exceptionLog = current
+    updateExceptionLogPageState(current) {
+      this.pageState.exceptionLog = current
     },
-    updateQuartzLogPageState(state, quartzLog) {
-      state.pageState.quartzLog.jobId = quartzLog.jobId
-      state.pageState.quartzLog.current = quartzLog.current
+    updateQuartzLogPageState(quartzLog) {
+      this.pageState.quartzLog.jobId = quartzLog.jobId
+      this.pageState.quartzLog.current = quartzLog.current
     },
-    updatePhotoPageState(state, photo) {
-      state.pageState.photo.albumId = photo.albumId
-      state.pageState.photo.current = photo.current
+    updatePhotoPageState(photo) {
+      this.pageState.photo.albumId = photo.albumId
+      this.pageState.photo.current = photo.current
     }
-  },
-  plugins: [
-    createPersistedState({
-      storage: window.sessionStorage
-    })
-  ]
+  }
 })
