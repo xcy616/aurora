@@ -1,0 +1,7 @@
+server:
+  port: 8090
+
+# JWT 密钥（Base64 编码）
+# 原项目从 application.yml 中读取
+jwt:
+  secret: dGVzdC1zZWNyZXQta2V5LWZvci1hdXJvc2VjdXJpdHktcHJvamVjdC0yMDI0
