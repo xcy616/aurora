@@ -81,10 +81,8 @@
               </el-col>
             </el-row>
             <template #reference><el-input
-              :prefix-icon="'iconfont ' + menuForm.icon"
-             
               v-model="menuForm.icon"
-              style="width: 220px" /></template>
+              style="width: 220px"><template #prefix><i :class="'iconfont ' + menuForm.icon" /></template></el-input></template>
           </el-popover>
         </el-form-item>
         <el-form-item label="组件路径" v-show="!isCatalog">

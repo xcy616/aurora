@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
@@ -56,6 +56,30 @@ Object.entries(Icons).forEach(([name, component]) => {
 app.component('v-chart', VueECharts)
 app.component('calendar-heatmap', CalendarHeatmap)
 app.component('tag-cloud', TagCloud)
+
+// 兼容 Element UI 的字符串图标写法：icon="el-icon-xxx" / prefix-icon="el-icon-xxx"
+// Element Plus 会把字符串 icon 当作组件名解析，这里注册为渲染 <i class="..."> 的组件，
+// 配合 element-icons 字体即可保持原有图标显示。
+const FONT_ICON_NAMES = [
+  'el-icon-caret-right',
+  'el-icon-delete',
+  'el-icon-deleteItem',
+  'el-icon-download',
+  'el-icon-picture',
+  'el-icon-plus',
+  'el-icon-refresh',
+  'el-icon-search',
+  'el-icon-s-operation',
+  'el-icon-success',
+  'el-icon-upload',
+  'el-icon-user-solid',
+  'el-icon-view'
+]
+FONT_ICON_NAMES.forEach((name) => {
+  app.component(name, {
+    render: () => h('i', { class: name })
+  })
+})
 
 const globalProperties = app.config.globalProperties
 globalProperties.config = config
