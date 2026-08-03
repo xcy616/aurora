@@ -17,7 +17,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, LineChart, MapChart, PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components'
 import { CalendarHeatmap } from 'vue3-calendar-heatmap'
-import TagCloud from './components/tag-cloud'
+import TagCloud from './components/tag-cloud.vue'
 import config from './assets/js/config'
 import dayjs from 'dayjs'
 import Md_Katex from '@iktakahiro/markdown-it-katex'
@@ -27,6 +27,7 @@ import './assets/css/element-icons.css'
 import './assets/css/iconfont.css'
 import './assets/js/china'
 import { useAppStore } from './store'
+import { generaMenu, areMenuRoutesAdded } from './assets/js/menu'
 
 use([
   CanvasRenderer,
@@ -44,6 +45,34 @@ const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
+
+// 路由守卫必须在 app.use(router) 之前注册，否则首次导航不会经过守卫，
+// 会导致刷新后（或直接访问 /）路由无匹配、页面空白。
+router.beforeEach(async (to) => {
+  NProgress.start()
+  const store = useAppStore()
+  if (to.path == '/login') {
+    return true
+  }
+  if (!store.userInfo) {
+    return { path: '/login' }
+  }
+  if (!areMenuRoutesAdded()) {
+    try {
+      await generaMenu()
+    } catch (e) {
+      return { path: '/login' }
+    }
+    // vue-router 4 在守卫执行前就已解析目标路由；若路由是本次才动态添加的，
+    // 需要重新导航一次才能命中新路由，否则会停在"无匹配"的空白页。
+    return to.fullPath
+  }
+  return true
+})
+router.afterEach(() => {
+  NProgress.done()
+})
+
 app.use(router)
 app.use(ElementPlus)
 app.use(mavonEditor)
@@ -98,22 +127,6 @@ NProgress.configure({
   showSpinner: false,
   trickleSpeed: 200,
   minimum: 0.3
-})
-
-router.beforeEach((to, from, next) => {
-  NProgress.start()
-  const store = useAppStore()
-  if (to.path == '/login') {
-    next()
-  } else if (!store.userInfo) {
-    next({ path: '/login' })
-  } else {
-    next()
-  }
-})
-
-router.afterEach(() => {
-  NProgress.done()
 })
 
 axios.interceptors.request.use((config) => {

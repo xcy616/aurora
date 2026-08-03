@@ -521,7 +521,7 @@ export default {
       }
     },
     isActive() {
-      return function (status) {
+      return (status) => {
         return this.activeStatus == status ? 'active-status' : 'status'
       }
     }

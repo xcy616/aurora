@@ -21,7 +21,6 @@
 
 <script>
 import { useAppStore } from '@/store'
-import { generaMenu } from '@/assets/js/menu'
 export default {
   setup() {
     const store = useAppStore()
@@ -50,7 +49,6 @@ export default {
           that.axios.post('/api/users/login', param).then(({ data }) => {
             if (data.flag) {
               that.store.login(data.data)
-              generaMenu()
               that.$message.success('登录成功')
               that.$router.push({ path: '/' })
             } else {

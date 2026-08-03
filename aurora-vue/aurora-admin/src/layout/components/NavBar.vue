@@ -42,6 +42,7 @@
 
 <script>
 import { resetRouter } from '@/router'
+import { resetMenuRoutes } from '@/assets/js/menu'
 import { useAppStore } from '@/store'
 export default {
   setup() {
@@ -87,6 +88,7 @@ export default {
           this.store.logout()
           this.store.resetTab()
           resetRouter()
+          resetMenuRoutes()
           this.$router.push({ path: '/login' })
         })
       }
@@ -123,7 +125,7 @@ export default {
   },
   computed: {
     isActive() {
-      return function (tab) {
+      return (tab) => {
         if (tab.path == this.$route.path) {
           return 'tabs-view-item-active'
         }

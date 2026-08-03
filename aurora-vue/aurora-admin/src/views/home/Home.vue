@@ -49,7 +49,7 @@
     <el-card style="margin-top: 1.25rem">
       <div class="e-title">一周访问量</div>
       <div style="height: 350px">
-        <v-chart :options="viewCount" v-loading="loading" />
+        <v-chart :option="viewCount" v-loading="loading" />
       </div>
     </el-card>
     <el-card style="margin-top: 1.25rem">
@@ -63,7 +63,7 @@
         <el-card>
           <div class="e-title">文章浏览量排行</div>
           <div style="height: 350px">
-            <v-chart :options="ariticleRank" v-loading="loading" />
+            <v-chart :option="ariticleRank" v-loading="loading" />
           </div>
         </el-card>
       </el-col>
@@ -71,7 +71,7 @@
         <el-card>
           <div class="e-title">文章分类统计</div>
           <div style="height: 350px">
-            <v-chart :options="category" v-loading="loading" />
+            <v-chart :option="category" v-loading="loading" />
           </div>
         </el-card>
       </el-col>
@@ -87,7 +87,7 @@
                 <el-radio :label="2">游客</el-radio>
               </el-radio-group>
             </div>
-            <v-chart :options="userAreaMap" />
+            <v-chart :option="userAreaMap" />
           </div>
         </el-card>
       </el-col>

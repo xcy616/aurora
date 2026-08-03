@@ -148,7 +148,7 @@ export default {
   },
   computed: {
     isActive() {
-      return function (status) {
+      return (status) => {
         return this.status == status ? 'active-status' : 'status'
       }
     }

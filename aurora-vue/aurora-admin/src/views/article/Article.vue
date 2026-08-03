@@ -422,7 +422,7 @@ export default {
   },
   computed: {
     tagClass() {
-      return function (item) {
+      return (item) => {
         const index = this.article.tagNames.indexOf(item.tagName)
         return index != -1 ? 'tag-item-select' : 'tag-item'
       }
