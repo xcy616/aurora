@@ -19,6 +19,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 菜单模块控制器
+ *
+ * 后台功能：菜单的增删改查、目录显隐控制、角色菜单选项、当前用户菜单
+ * 背景：后台的菜单是动态的，存数据库，登录后按角色返回可看的菜单
+ */
 @Api(tags = "菜单模块")
 @RestController
 public class MenuController {
@@ -59,12 +65,14 @@ public class MenuController {
     @ApiOperation(value = "查看角色菜单选项")
     @GetMapping("/admin/role/menus")
     public ResultVO<List<LabelOptionDTO>> listMenuOptions() {
+        // 给角色分配菜单时的树形选择数据
         return ResultVO.ok(menuService.listMenuOptions());
     }
 
     @ApiOperation(value = "查看当前用户菜单")
     @GetMapping("/admin/user/menus")
     public ResultVO<List<UserMenuDTO>> listUserMenus() {
+        // 登录后获取自己角色能看到的菜单（动态渲染侧边栏）
         return ResultVO.ok(menuService.listUserMenus());
     }
 }

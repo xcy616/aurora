@@ -20,6 +20,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 照片模块控制器
+ *
+ * 前台：根据相册查看照片
+ * 后台：照片的上传、增删改查、移动相册、删除状态（管理员权限）
+ */
 @Api(tags = "照片模块")
 @RestController
 public class PhotoController {
@@ -35,6 +41,7 @@ public class PhotoController {
     @ApiImplicitParam(name = "file", value = "照片", required = true, dataType = "MultipartFile")
     @PostMapping("/admin/photos/upload")
     public ResultVO<String> savePhotoAlbumCover(MultipartFile file) {
+        // 走上传策略，返回照片URL
         return ResultVO.ok(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.PHOTO.getPath()));
     }
 
@@ -48,6 +55,7 @@ public class PhotoController {
     @ApiOperation(value = "更新照片信息")
     @PutMapping("/admin/photos")
     public ResultVO<?> updatePhoto(@Valid @RequestBody PhotoInfoVO photoInfoVO) {
+        // 修改照片名称、描述
         photoService.updatePhoto(photoInfoVO);
         return ResultVO.ok();
     }
@@ -56,6 +64,7 @@ public class PhotoController {
     @ApiOperation(value = "保存照片")
     @PostMapping("/admin/photos")
     public ResultVO<?> savePhotos(@Valid @RequestBody PhotoVO photoVO) {
+        // 批量保存照片URL到相册
         photoService.savePhotos(photoVO);
         return ResultVO.ok();
     }
@@ -64,6 +73,7 @@ public class PhotoController {
     @ApiOperation(value = "移动照片相册")
     @PutMapping("/admin/photos/album")
     public ResultVO<?> updatePhotosAlbum(@Valid @RequestBody PhotoVO photoVO) {
+        // 把照片批量移动到另一个相册
         photoService.updatePhotosAlbum(photoVO);
         return ResultVO.ok();
     }
@@ -72,6 +82,7 @@ public class PhotoController {
     @ApiOperation(value = "更新照片删除状态")
     @PutMapping("/admin/photos/delete")
     public ResultVO<?> updatePhotoDelete(@Valid @RequestBody DeleteVO deleteVO) {
+        // 逻辑删除/恢复照片
         photoService.updatePhotoDelete(deleteVO);
         return ResultVO.ok();
     }
@@ -80,6 +91,7 @@ public class PhotoController {
     @ApiOperation(value = "删除照片")
     @DeleteMapping("/admin/photos")
     public ResultVO<?> deletePhotos(@RequestBody List<Integer> photoIds) {
+        // 物理删除照片
         photoService.deletePhotos(photoIds);
         return ResultVO.ok();
     }
@@ -87,6 +99,7 @@ public class PhotoController {
     @ApiOperation(value = "根据相册id查看照片列表")
     @GetMapping("/albums/{albumId}/photos")
     public ResultVO<PhotoDTO> listPhotosByAlbumId(@PathVariable("albumId") Integer albumId) {
+        // 前台相册详情页展示
         return ResultVO.ok(photoService.listPhotosByAlbumId(albumId));
     }
 

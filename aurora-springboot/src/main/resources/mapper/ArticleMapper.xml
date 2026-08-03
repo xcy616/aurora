@@ -422,7 +422,9 @@
         t_article a
         LEFT JOIN t_article_tag at on a.id = at.article_id
         <where>
-            is_delete = #{conditionVO.isDelete}
+            <if test="conditionVO.isDelete != null">
+                is_delete = #{conditionVO.isDelete}
+            </if>
             <if test="conditionVO.keywords != null">
                 and article_title like concat('%',#{conditionVO.keywords},'%')
             </if>
@@ -470,7 +472,9 @@
         FROM
         t_article
         <where>
-            is_delete = #{conditionVO.isDelete}
+            <if test="conditionVO.isDelete != null">
+                is_delete = #{conditionVO.isDelete}
+            </if>
             <if test="conditionVO.keywords != null">
                 and article_title like concat('%',#{conditionVO.keywords},'%')
             </if>

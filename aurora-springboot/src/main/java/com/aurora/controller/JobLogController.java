@@ -18,6 +18,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.DELETE;
 
+/**
+ * 定时任务日志控制器
+ *
+ * 后台功能：查看任务执行日志、删除日志、清空日志、查看任务分组
+ * 日志来源：Quartz 任务执行后写入 t_job_log 表
+ */
 @Api(tags = "定时任务日志模块")
 @RestController
 public class JobLogController {
@@ -43,6 +49,7 @@ public class JobLogController {
     @ApiOperation("清除定时任务的日志")
     @DeleteMapping("/admin/jobLogs/clean")
     public ResultVO<?> cleanJobLogs() {
+        // 一键清空所有任务日志
         jobLogService.cleanJobLogs();
         return ResultVO.ok();
     }

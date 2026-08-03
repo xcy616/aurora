@@ -23,6 +23,15 @@ import javax.validation.Valid;
 import static com.aurora.constant.OptTypeConstant.UPDATE;
 import static com.aurora.constant.OptTypeConstant.UPLOAD;
 
+/**
+ * 网站信息控制器（首页/后台首页数据）
+ *
+ * 职责：
+ * - 首页：获取系统信息（网站配置、访问量等）、上报访客、关于我
+ * - 后台：获取后台首页数据、更新网站配置、上传配置图片
+ *
+ * 注意：GET / 是网站首页数据接口（数据库里是 t_website_config 表）
+ */
 @Api(tags = "aurora信息")
 @RestController
 public class AuroraInfoController {
@@ -36,6 +45,7 @@ public class AuroraInfoController {
     @ApiOperation(value = "上报访客信息")
     @PostMapping("/report")
     public ResultVO<?> report() {
+        // 前端每次加载页面调用：记录访客IP、访问量+1
         auroraInfoService.report();
         return ResultVO.ok();
     }
@@ -43,12 +53,14 @@ public class AuroraInfoController {
     @ApiOperation(value = "获取系统信息")
     @GetMapping("/")
     public ResultVO<AuroraHomeInfoDTO> getBlogHomeInfo() {
+        // 首页数据：网站配置、最新文章、标签、分类等
         return ResultVO.ok(auroraInfoService.getAuroraHomeInfo());
     }
 
     @ApiOperation(value = "获取系统后台信息")
     @GetMapping("/admin")
     public ResultVO<AuroraAdminInfoDTO> getBlogBackInfo() {
+        // 后台首页数据：访问量、文章数、评论数、用户数等统计
         return ResultVO.ok(auroraInfoService.getAuroraAdminInfo());
     }
 
@@ -56,6 +68,7 @@ public class AuroraInfoController {
     @ApiOperation(value = "更新网站配置")
     @PutMapping("/admin/website/config")
     public ResultVO<?> updateWebsiteConfig(@Valid @RequestBody WebsiteConfigVO websiteConfigVO) {
+        // 后台保存网站配置（同时更新 Redis 缓存）
         auroraInfoService.updateWebsiteConfig(websiteConfigVO);
         return ResultVO.ok();
     }
@@ -85,6 +98,7 @@ public class AuroraInfoController {
     @ApiImplicitParam(name = "file", value = "图片", required = true, dataType = "MultipartFile")
     @PostMapping("/admin/config/images")
     public ResultVO<String> savePhotoAlbumCover(MultipartFile file) {
+        // 上传网站配置相关的图片（logo、头像等）
         return ResultVO.ok(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.CONFIG.getPath()));
     }
 

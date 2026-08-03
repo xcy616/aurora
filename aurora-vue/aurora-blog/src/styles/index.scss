@@ -72,3 +72,56 @@ div::-webkit-scrollbar-track {
 .is-collapsed {
   max-height: 0;
 }
+
+/* 通知弹窗：居中显示 + 主题风格美化 */
+.el-notification {
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  width: 420px !important;
+  padding: 24px 26px 20px !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  color: var(--text-normal) !important;
+  background: var(--background-secondary) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.4) !important;
+  overflow: hidden !important;
+}
+
+/* 顶部主题渐变装饰条 */
+.el-notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--main-gradient);
+}
+
+/* 标题使用主题强调色 */
+.el-notification__title {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  color: var(--text-accent) !important;
+}
+
+/* 图标放大 */
+.el-notification__icon {
+  font-size: 26px !important;
+}
+
+/* 关闭按钮 hover 效果 */
+.el-notification .el-notification__closeBtn {
+  transition: color 250ms ease, transform 250ms ease;
+}
+
+.el-notification .el-notification__closeBtn:hover {
+  color: var(--text-accent) !important;
+  transform: rotate(90deg);
+}

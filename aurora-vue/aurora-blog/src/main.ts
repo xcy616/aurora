@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, h } from 'vue'
 import App from './App.vue'
 import router from './router'
 import './router/guard'
@@ -18,6 +18,8 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import infiniteScroll from 'vue3-infinite-scroll-better'
 import v3ImgPreview from 'v3-img-preview'
 import 'mavon-editor/dist/css/index.css'
+import { ElNotification } from 'element-plus'
+import CountdownText from '@/components/CountdownText.vue'
 import api from './api/api'
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
@@ -36,6 +38,14 @@ export const app = createApp(App)
     error: require('@/assets/default-cover.jpg')
   })
 const userStore = useUserStore()
+// 恢复“记住我”的登录状态（勾选 Remember me 后，重新打开浏览器仍保持登录）
+const rememberedUserInfo = localStorage.getItem('rememberUserInfo')
+if (rememberedUserInfo && !sessionStorage.getItem('token')) {
+  const rememberedToken = localStorage.getItem('rememberToken') || ''
+  userStore.userInfo = JSON.parse(rememberedUserInfo)
+  userStore.token = rememberedToken
+  sessionStorage.setItem('token', rememberedToken)
+}
 axios.interceptors.request.use((config: any) => {
   const token = sessionStorage.getItem('token')
   if (token) {
@@ -90,6 +100,16 @@ components.forEach((component) => {
 plugins.forEach((plugin) => {
   app.use(plugin)
 })
+// 通知弹窗统一 3 秒后自动关闭，弹窗内实时倒计时（3→2→1）
+app.config.globalProperties.$notify = (options: any) => {
+  const instance = ElNotification({
+    ...options,
+    duration: 0,
+    message: h(CountdownText, { text: options.message })
+  })
+  setTimeout(() => instance.close(), 3000)
+  return instance
+}
 registerSvgIcon(app)
 registerObSkeleton(app)
 app.mount('#app')

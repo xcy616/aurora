@@ -18,6 +18,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 友链模块控制器
+ *
+ * 前台：查看友链列表
+ * 后台：友链的增删改查（管理员权限）
+ */
 @Api(tags = "友链模块")
 @RestController
 public class FriendLinkController {
@@ -28,12 +34,14 @@ public class FriendLinkController {
     @ApiOperation(value = "查看友链列表")
     @GetMapping("/links")
     public ResultVO<List<FriendLinkDTO>> listFriendLinks() {
+        // 前台友链页展示（只显示审核通过的）
         return ResultVO.ok(friendLinkService.listFriendLinks());
     }
 
     @ApiOperation(value = "查看后台友链列表")
     @GetMapping("/admin/links")
     public ResultVO<PageResultDTO<FriendLinkAdminDTO>> listFriendLinkDTO(ConditionVO conditionVO) {
+        // 后台管理：分页 + 条件查询
         return ResultVO.ok(friendLinkService.listFriendLinksAdmin(conditionVO));
     }
 

@@ -18,6 +18,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.DELETE;
 
+/**
+ * 异常日志控制器
+ *
+ * 后台功能：查看异常日志列表、删除异常日志
+ * 日志来源：ExceptionLogAspect 切面异步写入 t_exception_log 表
+ */
 @Api(tags = "异常日志模块")
 @RestController
 public class ExceptionLogController {

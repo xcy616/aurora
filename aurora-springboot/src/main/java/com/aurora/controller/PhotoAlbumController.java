@@ -23,6 +23,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 相册模块控制器
+ *
+ * 前台：获取相册列表
+ * 后台：相册的增删改查、封面上传（管理员权限）
+ */
 @Api(tags = "相册模块")
 @RestController
 public class PhotoAlbumController {
@@ -39,6 +45,7 @@ public class PhotoAlbumController {
     @ApiImplicitParam(name = "file", value = "相册封面", required = true, dataType = "MultipartFile")
     @PostMapping("/admin/photos/albums/upload")
     public ResultVO<String> savePhotoAlbumCover(MultipartFile file) {
+        // 走上传策略（MinIO/OSS），返回封面URL
         return ResultVO.ok(uploadStrategyContext.executeUploadStrategy(file, FilePathEnum.PHOTO.getPath()));
     }
 
@@ -59,6 +66,7 @@ public class PhotoAlbumController {
     @ApiOperation(value = "获取后台相册列表信息")
     @GetMapping("/admin/photos/albums/info")
     public ResultVO<List<PhotoAlbumDTO>> listPhotoAlbumBackInfos() {
+        // 后台选相册下拉框用
         return ResultVO.ok(photoAlbumService.listPhotoAlbumInfosAdmin());
     }
 
@@ -74,6 +82,7 @@ public class PhotoAlbumController {
     @ApiImplicitParam(name = "albumId", value = "相册id", required = true, dataType = "Integer")
     @DeleteMapping("/admin/photos/albums/{albumId}")
     public ResultVO<?> deletePhotoAlbumById(@PathVariable("albumId") Integer albumId) {
+        // 删除相册（相册里的照片也一起处理）
         photoAlbumService.deletePhotoAlbumById(albumId);
         return ResultVO.ok();
     }
@@ -81,6 +90,7 @@ public class PhotoAlbumController {
     @ApiOperation(value = "获取相册列表")
     @GetMapping("/photos/albums")
     public ResultVO<List<PhotoAlbumDTO>> listPhotoAlbums() {
+        // 前台相册页展示（只显示公开的）
         return ResultVO.ok(photoAlbumService.listPhotoAlbums());
     }
 

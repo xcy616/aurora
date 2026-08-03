@@ -38,25 +38,43 @@
       <ThemeToggle />
     </span>
   </div>
-  <el-dialog v-model="loginDialogVisible" width="30%" :fullscreen="isMobile">
-    <el-form @keyup.enter.native="login">
-      <el-form-item model="userInfo" class="mt-5">
-        <el-input v-model="loginInfo.username" placeholder="邮箱" />
-      </el-form-item>
-      <el-form-item model="userInfo" type="password" class="mt-8">
-        <el-input v-model="loginInfo.password" type="password" show-password placeholder="密码" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="login" size="large" class="mx-auto mt-3">登录</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="button" class="mx-auto my-el-button" @click="qqLogin">QQ登录</el-button>
-      </el-form-item>
-      <div class="mt-8">
-        <span class="text" @click="openRegisterDialog">立即注册</span>
-        <span class="text float-right" @click="openForgetPasswordDialog">忘记密码?</span>
+  <el-dialog v-model="loginDialogVisible" width="450px" :fullscreen="isMobile" class="login-dialog" :show-close="false">
+    <form class="login-card form" @submit.prevent="login">
+      <svg class="login-close-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" @click="loginDialogVisible = false"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
+      <div class="flex-column">
+        <label>Email</label>
       </div>
-    </el-form>
+      <div class="inputForm">
+        <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg"><g id="Layer_3" data-name="Layer 3"><path d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z"></path></g></svg>
+        <input v-model="loginInfo.username" type="text" class="input" placeholder="Enter your Email">
+      </div>
+
+      <div class="flex-column">
+        <label>Password</label>
+      </div>
+      <div class="inputForm">
+        <svg height="20" viewBox="-64 0 512 512" width="20" xmlns="http://www.w3.org/2000/svg"><path d="m336 512h-288c-26.453125 0-48-21.523438-48-48v-224c0-26.476562 21.546875-48 48-48h288c26.453125 0 48 21.523438 48 48v224c0 26.476562-21.546875 48-48 48zm-288-288c-8.8125 0-16 7.167969-16 16v224c0 8.832031 7.1875 16 16 16h288c8.8125 0 16-7.167969 16-16v-224c0-8.832031-7.1875-16-16-16zm0 0"></path><path d="m304 224c-8.832031 0-16-7.167969-16-16v-80c0-52.929688-43.070312-96-96-96s-96 43.070312-96 96v80c0 8.832031-7.167969 16-16 16s-16-7.167969-16-16v-80c0-70.59375 57.40625-128 128-128s128 57.40625 128 128v80c0 8.832031-7.167969 16-16 16zm0 0"></path></svg>
+        <input v-model="loginInfo.password" :type="showPassword ? 'text' : 'password'" class="input" placeholder="Enter your Password">
+        <svg class="password-eye" viewBox="0 0 576 512" height="1em" xmlns="http://www.w3.org/2000/svg" @click="showPassword = !showPassword"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"></path></svg>
+      </div>
+
+      <div class="flex-row">
+        <div>
+          <input id="remember-me" type="checkbox" v-model="rememberMe">
+          <label for="remember-me">Remember me</label>
+        </div>
+        <span class="span" @click="openForgetPasswordDialog">Forgot password?</span>
+      </div>
+      <button class="button-submit" type="submit">Sign In</button>
+      <p class="p">Don't have an account? <span class="span" @click="openRegisterDialog">Sign Up</span></p>
+      <p class="p line">Or With</p>
+      <div class="flex-row">
+        <button class="btn qq-login-btn" type="button" @click="qqLogin">
+          <svg viewBox="0 0 32 32" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M29.606 20.855c-0.977-0.552-2.063-1.104-3.146-1.489 0.273-1.042 0.479-2.318 0.479-3.575 0-6.494-5.37-11.792-11.97-11.792-6.6 0-11.97 5.298-11.97 11.792 0 1.257 0.205 2.533 0.479 3.575-1.083 0.385-2.168 0.937-3.146 1.489-0.958 0.541-0.958 1.448 0 1.99 0.703 0.397 1.492 0.803 2.292 1.173 0.799 0.37 1.613 0.702 2.385 0.954-0.172 1.054-0.188 2.155-0.003 3.22 0.477 2.745 2.518 4.788 4.552 4.788 1.646 0 2.975-1.082 3.585-2.48 0.706 1.33 2.047 2.317 3.673 2.317 1.882 0 3.778-1.813 4.32-4.322 0.209-0.969 0.224-1.971 0.045-2.94 0.772-0.252 1.586-0.584 2.385-0.954 0.8-0.37 1.589-0.776 2.292-1.173 0.958-0.542 0.958-1.449 0-1.99zM12.887 25.246c-1.132 0-2.05-1.562-2.05-3.489 0-1.927 0.918-3.489 2.05-3.489s2.05 1.562 2.05 3.489c0 1.927-0.918 3.489-2.05 3.489zM19.188 25.246c-1.132 0-2.05-1.562-2.05-3.489 0-1.927 0.918-3.489 2.05-3.489s2.05 1.562 2.05 3.489c0 1.927-0.918 3.489-2.05 3.489z"></path></svg>
+          QQ 登录
+        </button>
+      </div>
+    </form>
   </el-dialog>
   <el-dialog v-model="registerDialogVisible" width="30%" :fullscreen="isMobile">
     <el-form>
@@ -159,7 +177,9 @@ export default defineComponent({
       forgetPasswordDialogVisible: false,
       articlePasswordDialogVisible: false,
       articlePassword: '',
-      articleId: ''
+      articleId: '',
+      rememberMe: false,
+      showPassword: false
     })
     emitter.on('changeArticlePasswordDialogVisible', (articleId: any) => {
       reactiveDate.articlePasswordDialogVisible = true
@@ -189,6 +209,14 @@ export default defineComponent({
           userStore.userInfo = data.data
           sessionStorage.setItem('token', data.data.token)
           userStore.token = data.data.token
+          // 勾选“记住我”后，关闭浏览器重新打开仍保持登录
+          if (reactiveDate.rememberMe) {
+            localStorage.setItem('rememberUserInfo', JSON.stringify(data.data))
+            localStorage.setItem('rememberToken', data.data.token)
+          } else {
+            localStorage.removeItem('rememberUserInfo')
+            localStorage.removeItem('rememberToken')
+          }
           proxy.$notify({
             title: 'Success',
             message: '登录成功',
@@ -205,6 +233,8 @@ export default defineComponent({
           userStore.token = ''
           userStore.accessArticles = []
           sessionStorage.removeItem('token')
+          localStorage.removeItem('rememberUserInfo')
+          localStorage.removeItem('rememberToken')
           proxy.$notify({
             title: 'Success',
             message: '登出成功',
@@ -350,6 +380,177 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
+.login-dialog {
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: var(--background-secondary) !important;
+  padding: 0 !important;
+}
+.login-dialog .el-dialog__body {
+  padding: 0;
+}
+/* 清除组件内部自动渲染的空 header（无标题时仍会渲染） */
+.login-dialog .el-dialog__header {
+  display: none;
+}
+/* 自定义关闭图标：放在卡片圆角框内右上角 */
+.login-close-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  box-sizing: border-box;
+  background: var(--background-primary);
+  border-radius: 8px;
+  color: var(--text-normal);
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+.login-close-icon:hover {
+  background: var(--text-sub-accent);
+  color: #fff;
+  transform: rotate(90deg);
+}
+/* 登录卡片表单样式（适配亮/暗主题） */
+.login-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--background-secondary);
+  padding: 30px;
+  width: 100%;
+  border-radius: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  box-sizing: border-box;
+  ::placeholder {
+    color: var(--text-faint);
+  }
+  .flex-column > label {
+    color: var(--text-normal);
+    font-weight: 600;
+  }
+  .inputForm {
+    border: 1.5px solid var(--background-primary-alt);
+    border-radius: 10px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    transition: 0.2s ease-in-out;
+    background: var(--background-primary);
+    svg {
+      color: var(--text-dim);
+      flex-shrink: 0;
+    }
+  }
+  .input {
+    margin-left: 10px;
+    border-radius: 10px;
+    border: none;
+    width: 85%;
+    height: 100%;
+    background: transparent;
+    color: var(--text-normal);
+    font-size: 14px;
+    &:focus {
+      outline: none;
+    }
+  }
+  .inputForm:focus-within {
+    border: 1.5px solid var(--text-sub-accent);
+  }
+  .flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+    > div > label {
+      font-size: 14px;
+      color: var(--text-normal);
+      font-weight: 400;
+      margin-left: 4px;
+      cursor: pointer;
+    }
+  }
+  .span {
+    font-size: 14px;
+    margin-left: 5px;
+    color: var(--text-sub-accent);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .button-submit {
+    margin: 20px 0 10px 0;
+    background: var(--main-gradient);
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 10px;
+    height: 50px;
+    width: 100%;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out;
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+  .p {
+    text-align: center;
+    color: var(--text-normal);
+    font-size: 14px;
+    margin: 5px 0;
+    &.line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-dim);
+      &::before,
+      &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--background-primary-alt);
+      }
+    }
+  }
+  .btn {
+    margin-top: 10px;
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    gap: 10px;
+    border: 1px solid var(--background-primary-alt);
+    background-color: var(--background-primary);
+    color: var(--text-normal);
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    &:hover {
+      border: 1px solid var(--text-sub-accent);
+    }
+  }
+  .qq-login-btn {
+    color: #12b7f5;
+    font-size: 15px;
+  }
+  .password-eye {
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  input[type='checkbox'] {
+    accent-color: var(--text-sub-accent);
+    cursor: pointer;
+  }
+}
 .my-el-button {
   width: 300px !important;
 }

@@ -18,6 +18,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.DELETE;
 
+/**
+ * 操作日志控制器
+ *
+ * 后台功能：查看操作日志列表、删除操作日志
+ * 日志来源：OperationLogAspect 切面异步写入 t_operation_log 表
+ */
 @Api(tags = "操作日志模块")
 @RestController
 public class OperationLogController {

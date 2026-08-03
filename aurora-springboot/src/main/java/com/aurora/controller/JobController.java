@@ -14,6 +14,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 定时任务控制器
+ *
+ * 后台功能：Quartz 定时任务的增删改查、状态启停、手动执行
+ * 任务类型：文章浏览量定时入库、定时发送邮件等
+ */
 @Api(tags = "定时任务模块")
 @RestController
 public class JobController {
@@ -33,6 +39,7 @@ public class JobController {
     @ApiOperation("修改定时任务")
     @PutMapping("/admin/jobs")
     public ResultVO<?> updateJob(@RequestBody JobVO jobVO) {
+        // 修改后需要重新调度 Quartz 任务
         jobService.updateJob(jobVO);
         return ResultVO.ok();
     }
@@ -60,6 +67,7 @@ public class JobController {
     @ApiOperation("更改任务的状态")
     @PutMapping("/admin/jobs/status")
     public ResultVO<?> updateJobStatus(@RequestBody JobStatusVO jobStatusVO) {
+        // 暂停/恢复 Quartz 任务
         jobService.updateJobStatus(jobStatusVO);
         return ResultVO.ok();
     }
@@ -67,6 +75,7 @@ public class JobController {
     @ApiOperation("执行某个任务")
     @PutMapping("/admin/jobs/run")
     public ResultVO<?> runJob(@RequestBody JobRunVO jobRunVO) {
+        // 手动触发一次任务（不等 cron 时间）
         jobService.runJob(jobRunVO);
         return ResultVO.ok();
     }

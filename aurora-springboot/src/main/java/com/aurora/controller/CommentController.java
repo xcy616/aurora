@@ -18,6 +18,12 @@ import java.util.List;
 
 import static com.aurora.constant.OptTypeConstant.*;
 
+/**
+ * 评论模块控制器
+ *
+ * 前台：发表评论（带限流）、获取评论、回复、热门评论
+ * 后台：评论列表、审核、删除（管理员权限）
+ */
 @Api(tags = "评论模块")
 @RestController
 public class CommentController {
@@ -25,7 +31,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    @AccessLimit(seconds = 60, maxCount = 3)
+    @AccessLimit(seconds = 60, maxCount = 3)  // 限流：60秒内最多评论3次
     @OptLog(optType = SAVE)
     @ApiOperation("添加评论")
     @PostMapping("/comments/save")
@@ -37,6 +43,7 @@ public class CommentController {
     @ApiOperation("获取评论")
     @GetMapping("/comments")
     public ResultVO<PageResultDTO<CommentDTO>> getComments(CommentVO commentVO) {
+        // 根据评论类型获取（文章评论/友链评论/说说评论）
         return ResultVO.ok(commentService.listComments(commentVO));
     }
 
@@ -49,12 +56,14 @@ public class CommentController {
     @ApiOperation("获取前六个评论")
     @GetMapping("/comments/topSix")
     public ResultVO<List<CommentDTO>> listTopSixComments() {
+        // 首页展示的热门评论
         return ResultVO.ok(commentService.listTopSixComments());
     }
 
     @ApiOperation(value = "查询后台评论")
     @GetMapping("/admin/comments")
     public ResultVO<PageResultDTO<CommentAdminDTO>> listCommentBackDTO(ConditionVO conditionVO) {
+        // 后台评论管理：分页 + 条件查询
         return ResultVO.ok(commentService.listCommentsAdmin(conditionVO));
     }
 
@@ -62,6 +71,7 @@ public class CommentController {
     @ApiOperation(value = "审核评论")
     @PutMapping("/admin/comments/review")
     public ResultVO<?> updateCommentsReview(@Valid @RequestBody ReviewVO reviewVO) {
+        // 开启评论审核时，管理员通过/驳回评论
         commentService.updateCommentsReview(reviewVO);
         return ResultVO.ok();
     }

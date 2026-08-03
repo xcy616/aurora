@@ -31,6 +31,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,7 @@ import static com.aurora.constant.RabbitMQConstant.SUBSCRIBE_EXCHANGE;
 import static com.aurora.constant.RedisConstant.*;
 import static com.aurora.enums.ArticleStatusEnum.*;
 import static com.aurora.enums.StatusCodeEnum.ARTICLE_ACCESS_FAIL;
+import static com.aurora.enums.StatusCodeEnum.NO_LOGIN;
 
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
@@ -167,8 +169,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (Objects.isNull(article)) {
             throw new BizException("文章不存在");
         }
-        if (article.getPassword().equals(articlePasswordVO.getArticlePassword())) {
-            redisService.sAdd(ARTICLE_ACCESS + UserUtil.getUserDetailsDTO().getId(), articlePasswordVO.getArticleId());
+        if (Objects.equals(article.getPassword(), articlePasswordVO.getArticlePassword())) {
+            Authentication authentication = UserUtil.getAuthentication();
+            if (Objects.isNull(authentication) || !(authentication.getPrincipal() instanceof UserDetailsDTO)) {
+                throw new BizException(NO_LOGIN);
+            }
+            redisService.sAdd(ARTICLE_ACCESS + ((UserDetailsDTO) authentication.getPrincipal()).getId(), articlePasswordVO.getArticleId());
         } else {
             throw new BizException("密码错误");
         }
