@@ -3,7 +3,6 @@
     <ul>
       <li class="text-ob-bright" v-if="currentPage > 1" @click="pageChangeEmitter(currentPage - 1)">
         <svg-icon icon-class="arrow-left" />
-        {{ t('settings.paginator.newer') }}
       </li>
       <li
         v-if="paginator.head !== 0"
@@ -25,7 +24,6 @@
         {{ paginator.end }}
       </li>
       <li class="text-ob-bright" v-if="currentPage < pages" @click="pageChangeEmitter(currentPage + 1)">
-        {{ t('settings.paginator.older') }}
         <svg-icon icon-class="arrow-right" />
       </li>
     </ul>
