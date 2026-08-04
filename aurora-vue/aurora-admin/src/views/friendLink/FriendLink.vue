@@ -68,7 +68,7 @@
       </div></template>
     </el-dialog>
     <el-dialog v-model="addOrEdit" width="30%">
-      <template #title><div class="dialog-title-container" ref="linkTitle" /></template>
+      <template #title><div class="dialog-title-container">{{ dialogTitle }}</div></template>
       <el-form label-width="80px" size="medium" :model="linkForm">
         <el-form-item label="链接名">
           <el-input style="width: 250px" v-model="linkForm.linkName" />
@@ -107,6 +107,7 @@ export default {
       loading: true,
       deleteFlag: false,
       addOrEdit: false,
+      dialogTitle: '',
       linkIdList: [],
       linkList: [],
       linkForm: {
@@ -168,14 +169,14 @@ export default {
     openModel(link) {
       if (link != null) {
         this.linkForm = JSON.parse(JSON.stringify(link))
-        this.$refs.linkTitle.innerHTML = '修改友链'
+        this.dialogTitle = '修改友链'
       } else {
         this.linkForm.id = null
         this.linkForm.linkName = ''
         this.linkForm.linkAvatar = ''
         this.linkForm.linkIntro = ''
         this.linkForm.linkAddress = ''
-        this.$refs.linkTitle.innerHTML = '添加友链'
+        this.dialogTitle = '添加友链'
       }
       this.addOrEdit = true
     },
