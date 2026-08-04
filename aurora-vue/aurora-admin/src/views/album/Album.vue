@@ -53,7 +53,7 @@
       :total="count"
       layout="prev, pager, next" />
     <el-dialog v-model="addOrEdit" width="35%" top="10vh">
-      <template #title><div class="dialog-title-container" ref="albumTitle" /></template>
+      <template #title><div class="dialog-title-container">{{ dialogTitle }}</div></template>
       <el-form label-width="80px" size="medium" :model="albumForum">
         <el-form-item label="相册名称">
           <el-input style="width: 220px" v-model="albumForum.albumName" />
@@ -110,6 +110,7 @@ export default {
       loading: true,
       isdelete: false,
       addOrEdit: false,
+      dialogTitle: '',
       albumForum: {
         id: null,
         albumName: '',
@@ -129,16 +130,16 @@ export default {
       if (item) {
         console.log(item)
         this.albumForum = JSON.parse(item)
-        this.$refs.albumTitle.innerHTML = '修改相册'
+        this.dialogTitle = '修改相册'
       } else {
         this.albumForum = {
           id: null,
           albumName: '',
-          albumLabel: '',
+          albumDesc: '',
           albumCover: '',
           status: 1
         }
-        this.$refs.albumTitle.innerHTML = '新建相册'
+        this.dialogTitle = '新建相册'
       }
       this.addOrEdit = true
     },
