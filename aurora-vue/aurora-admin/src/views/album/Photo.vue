@@ -45,24 +45,23 @@
     <el-row class="photo-container" :gutter="24" v-loading="loading">
       <el-empty v-if="photos.length == 0" description="暂无照片" />
       <el-col :md="4" v-for="item of photos" :key="item.id">
-        <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
-          <el-checkbox :label="item.id">
-            <div class="photo-item">
-              <div class="photo-opreation">
-                <el-dropdown @command="handleCommand">
-                  <i class="el-icon-more" style="color: #fff" />
-                  <template #dropdown><el-dropdown-menu>
-                    <el-dropdown-item :command="JSON.stringify(item)">
-                      <i class="el-icon-edit" />编辑
-                    </el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-              </div>
-              <el-image fit="cover" class="photo-img" :src="item.photoSrc" :preview-photoSrc-list="photos" />
-              <div class="photo-name">{{ item.photoName }}</div>
-            </div>
-          </el-checkbox>
-        </el-checkbox-group>
+        <div class="photo-item">
+          <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
+            <el-checkbox :label="item.id" class="photo-check" />
+          </el-checkbox-group>
+          <div class="photo-opreation">
+            <el-dropdown @command="handleCommand">
+              <i class="el-icon-more" style="color: #fff" />
+              <template #dropdown><el-dropdown-menu>
+                <el-dropdown-item :command="JSON.stringify(item)">
+                  <i class="el-icon-edit" />编辑
+                </el-dropdown-item>
+              </el-dropdown-menu></template>
+            </el-dropdown>
+          </div>
+          <el-image fit="cover" class="photo-img" :src="item.photoSrc" :preview-photoSrc-list="photos" />
+          <div class="photo-name">{{ item.photoName }}</div>
+        </div>
       </el-col>
     </el-row>
     <el-pagination
@@ -442,19 +441,9 @@ export default {
   width: 100%;
   position: relative;
   cursor: pointer;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
-.photo-container .el-checkbox {
-  position: relative;
-  display: block;
-  width: 100%;
-}
-.photo-container .el-checkbox__label {
-  display: block;
-  width: 100%;
-  padding: 0;
-}
-.photo-container .el-checkbox__input {
+.photo-check {
   position: absolute;
   top: 6px;
   right: 10px;
