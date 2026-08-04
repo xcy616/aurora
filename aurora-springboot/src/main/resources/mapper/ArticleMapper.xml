@@ -502,13 +502,13 @@
                 )
             </if>
         </where>
-        ORDER BY COALESCE(update_time, create_time) DESC, id DESC
+        ORDER BY is_top DESC, is_featured DESC, COALESCE(update_time, create_time) DESC, id DESC
         LIMIT #{current},#{size}
         ) a
         LEFT JOIN t_category c ON a.category_id = c.id
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON t.id = at.tag_id
-        ORDER BY COALESCE(a.update_time, a.create_time) DESC, a.id DESC
+        ORDER BY a.is_top DESC, a.is_featured DESC, COALESCE(a.update_time, a.create_time) DESC, a.id DESC
     </select>
     <select id="listArticleStatistics" resultType="com.aurora.model.dto.ArticleStatisticsDTO">
         SELECT DATE_FORMAT(create_time, "%Y-%m-%d") AS date,
