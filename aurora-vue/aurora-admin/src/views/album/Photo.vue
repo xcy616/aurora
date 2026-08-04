@@ -44,7 +44,7 @@
     </div>
     <el-row class="photo-container" :gutter="24" v-loading="loading">
       <el-empty v-if="photos.length == 0" description="暂无照片" />
-      <el-col :md="4" v-for="item of photos" :key="item.id">
+      <el-col :md="6" v-for="item of photos" :key="item.id">
         <div class="photo-item">
           <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
             <el-checkbox :label="item.id" class="photo-check" />
@@ -59,7 +59,7 @@
               </el-dropdown-menu></template>
             </el-dropdown>
           </div>
-          <el-image fit="cover" class="photo-img" :src="item.photoSrc" :preview-photoSrc-list="photos" />
+          <el-image fit="contain" class="photo-img" :src="item.photoSrc" :preview-photoSrc-list="photos" />
           <div class="photo-name">{{ item.photoName }}</div>
         </div>
       </el-col>
@@ -451,7 +451,8 @@ export default {
 }
 .photo-img {
   width: 100%;
-  height: 7rem;
+  height: 10rem;
+  background-color: var(--el-fill-color-light, #f5f7fa);
   border-radius: 4px;
 }
 .photo-name {
