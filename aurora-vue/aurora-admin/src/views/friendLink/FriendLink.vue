@@ -74,7 +74,18 @@
           <el-input style="width: 250px" v-model="linkForm.linkName" />
         </el-form-item>
         <el-form-item label="链接头像">
-          <el-input style="width: 250px" v-model="linkForm.linkAvatar" />
+          <el-upload
+            class="avatar-uploader"
+            drag
+            :headers="headers"
+            :before-upload="beforeUpload"
+            action="/api/admin/config/images"
+            :show-file-list="false"
+            :on-success="uploadAvatar">
+            <i class="el-icon-upload" v-if="linkForm.linkAvatar == ''" />
+            <div class="el-upload__text" v-if="linkForm.linkAvatar == ''">将文件拖到此处，或<em>点击上传</em></div>
+            <img v-else :src="linkForm.linkAvatar" width="100" height="100" style="border-radius: 8px" />
+          </el-upload>
         </el-form-item>
         <el-form-item label="链接地址">
           <el-input style="width: 250px" v-model="linkForm.linkAddress" />
@@ -92,6 +103,7 @@
 </template>
 
 <script>
+import * as imageConversion from 'image-conversion'
 import { useAppStore } from '@/store'
 export default {
   setup() {
@@ -108,6 +120,7 @@ export default {
       deleteFlag: false,
       addOrEdit: false,
       dialogTitle: '',
+      headers: { Authorization: 'Bearer ' + sessionStorage.getItem('token') },
       linkIdList: [],
       linkList: [],
       linkForm: {
@@ -164,6 +177,23 @@ export default {
           })
         }
         this.deleteFlag = false
+      })
+    },
+    uploadAvatar(response) {
+      if (response.flag) {
+        this.linkForm.linkAvatar = response.data
+      } else {
+        this.$message.error(response.message)
+      }
+    },
+    beforeUpload(file) {
+      return new Promise((resolve) => {
+        if (file.size / 1024 < this.config.UPLOAD_SIZE) {
+          resolve(file)
+        }
+        imageConversion.compressAccurately(file, this.config.UPLOAD_SIZE).then((res) => {
+          resolve(res)
+        })
       })
     },
     openModel(link) {
