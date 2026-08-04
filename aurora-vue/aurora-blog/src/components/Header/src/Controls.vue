@@ -65,7 +65,10 @@
         </div>
         <span class="span" @click="openForgetPasswordDialog">Forgot password?</span>
       </div>
-      <button class="button-submit" type="submit">Sign In</button>
+      <button class="button-submit" type="submit" :disabled="loginLoading">
+        <span v-if="loginLoading" class="btn-loading-spinner"></span>
+        Sign In
+      </button>
       <p class="p">Don't have an account? <span class="span" @click="openRegisterDialog">Sign Up</span></p>
       <p class="p line">Or With</p>
       <div class="flex-row">
@@ -179,7 +182,8 @@ export default defineComponent({
       articlePassword: '',
       articleId: '',
       rememberMe: false,
-      showPassword: false
+      showPassword: false,
+      loginLoading: false
     })
     emitter.on('changeArticlePasswordDialogVisible', (articleId: any) => {
       reactiveDate.articlePasswordDialogVisible = true
@@ -193,6 +197,9 @@ export default defineComponent({
       appStore.changeLocale(name)
     }
     const login = () => {
+      if (reactiveDate.loginLoading) {
+        return
+      }
       if (loginInfo.username.trim().length == 0 || loginInfo.password.trim().length == 0) {
         proxy.$notify({
           title: 'Warning',
@@ -201,30 +208,49 @@ export default defineComponent({
         })
         return
       }
+      reactiveDate.loginLoading = true
       let params = new URLSearchParams()
       params.append('username', loginInfo.username)
       params.append('password', loginInfo.password)
-      api.login(params).then(({ data }) => {
-        if (data.flag) {
-          userStore.userInfo = data.data
-          sessionStorage.setItem('token', data.data.token)
-          userStore.token = data.data.token
-          // 勾选“记住我”后，关闭浏览器重新打开仍保持登录
-          if (reactiveDate.rememberMe) {
-            localStorage.setItem('rememberUserInfo', JSON.stringify(data.data))
-            localStorage.setItem('rememberToken', data.data.token)
+      api
+        .login(params)
+        .then(({ data }) => {
+          if (data.flag) {
+            userStore.userInfo = data.data
+            sessionStorage.setItem('token', data.data.token)
+            userStore.token = data.data.token
+            // 勾选“记住我”后，关闭浏览器重新打开仍保持登录
+            if (reactiveDate.rememberMe) {
+              localStorage.setItem('rememberUserInfo', JSON.stringify(data.data))
+              localStorage.setItem('rememberToken', data.data.token)
+            } else {
+              localStorage.removeItem('rememberUserInfo')
+              localStorage.removeItem('rememberToken')
+            }
+            proxy.$notify({
+              title: 'Success',
+              message: '登录成功',
+              type: 'success'
+            })
+            reactiveDate.loginDialogVisible = false
           } else {
-            localStorage.removeItem('rememberUserInfo')
-            localStorage.removeItem('rememberToken')
+            proxy.$notify({
+              title: 'Warning',
+              message: data.message,
+              type: 'warning'
+            })
           }
+        })
+        .catch(() => {
           proxy.$notify({
-            title: 'Success',
-            message: '登录成功',
-            type: 'success'
+            title: 'Error',
+            message: '网络异常，请稍后重试',
+            type: 'error'
           })
-          reactiveDate.loginDialogVisible = false
-        }
-      })
+        })
+        .finally(() => {
+          reactiveDate.loginLoading = false
+        })
     }
     const logout = () => {
       api.logout().then(({ data }) => {
@@ -494,10 +520,31 @@ export default defineComponent({
     border-radius: 10px;
     height: 50px;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: pointer;
     transition: opacity 0.2s ease-in-out;
-    &:hover {
+    &:hover:not(:disabled) {
       opacity: 0.85;
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-loading-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: btn-loading-rotate 0.6s linear infinite;
+    }
+    @keyframes btn-loading-rotate {
+      to {
+        transform: rotate(360deg);
+      }
     }
   }
   .p {
