@@ -87,7 +87,9 @@
       <el-form-item model="userInfo" class="mt-8">
         <el-input v-model="loginInfo.code" placeholder="验证码">
           <template #append>
-            <span class="text" @click="sendCode">发送</span>
+            <span class="text code-send-btn" :class="{ 'code-send-disabled': codeCountdown > 0 }" @click="sendCode">
+              {{ codeCountdown > 0 ? codeCountdown + 's 后重发' : '发送' }}
+            </span>
           </template>
         </el-input>
       </el-form-item>
@@ -108,7 +110,9 @@
       <el-form-item model="userInfo" class="mt-8">
         <el-input v-model="loginInfo.code" placeholder="验证码">
           <template #append>
-            <span class="text" @click="sendCode">发送</span>
+            <span class="text code-send-btn" :class="{ 'code-send-disabled': codeCountdown > 0 }" @click="sendCode">
+              {{ codeCountdown > 0 ? codeCountdown + 's 后重发' : '发送' }}
+            </span>
           </template>
         </el-input>
       </el-form-item>
@@ -137,17 +141,16 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, toRef, toRefs, reactive, getCurrentInstance, nextTick } from 'vue'
+import { computed, defineComponent, toRef, toRefs, reactive, getCurrentInstance, nextTick, onUnmounted } from 'vue'
 import { Dropdown, DropdownMenu, DropdownItem } from '@/components/Dropdown'
 import { useAppStore } from '@/stores/app'
 import { useCommonStore } from '@/stores/common'
 import { useUserStore } from '@/stores/user'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import ThemeToggle from '@/components/ToggleSwitch/ThemeToggle.vue'
 import api from '@/api/api'
 import SearchModel from '@/components/SearchModel.vue'
 import { useSearchStore } from '@/stores/search'
-import config from '@/config/config'
 import { useI18n } from 'vue-i18n'
 import emitter from '@/utils/mitt'
 
@@ -167,7 +170,6 @@ export default defineComponent({
     const commonStore = useCommonStore()
     const userStore = useUserStore()
     const searchStore = useSearchStore()
-    const route = useRoute()
     const router = useRouter()
     const loginInfo = reactive({
       username: '' as any,
@@ -183,8 +185,10 @@ export default defineComponent({
       articleId: '',
       rememberMe: false,
       showPassword: false,
-      loginLoading: false
+      loginLoading: false,
+      codeCountdown: 0
     })
+    let codeTimer: number | null = null
     emitter.on('changeArticlePasswordDialogVisible', (articleId: any) => {
       reactiveDate.articlePasswordDialogVisible = true
       reactiveDate.articlePassword = ''
@@ -291,6 +295,27 @@ export default defineComponent({
       reactiveDate.forgetPasswordDialogVisible = true
     }
     const sendCode = () => {
+      // 倒计时中禁止重复发送（后端限流 60 秒内最多 1 次）
+      if (reactiveDate.codeCountdown > 0) return
+      // 前置校验：邮箱为空或格式不正确时不发请求，避免白白消耗限流次数
+      const email = loginInfo.username.trim()
+      if (!email) {
+        proxy.$notify({
+          title: 'Warning',
+          message: '请输入邮箱',
+          type: 'warning'
+        })
+        return
+      }
+      const emailReg = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+      if (!emailReg.test(email)) {
+        proxy.$notify({
+          title: 'Warning',
+          message: '邮箱格式不正确',
+          type: 'warning'
+        })
+        return
+      }
       api.sendValidationCode(loginInfo.username).then(({ data }) => {
         if (data.flag) {
           proxy.$notify({
@@ -298,9 +323,22 @@ export default defineComponent({
             message: '验证码已发送',
             type: 'success'
           })
+          // 启动 60 秒倒计时，实时显示剩余可重发时间
+          reactiveDate.codeCountdown = 60
+          if (codeTimer) window.clearInterval(codeTimer)
+          codeTimer = window.setInterval(() => {
+            reactiveDate.codeCountdown--
+            if (reactiveDate.codeCountdown <= 0) {
+              window.clearInterval(codeTimer as number)
+              codeTimer = null
+            }
+          }, 1000)
         }
       })
     }
+    onUnmounted(() => {
+      if (codeTimer) window.clearInterval(codeTimer)
+    })
     const register = () => {
       let params = {
         code: loginInfo.code,
@@ -323,24 +361,16 @@ export default defineComponent({
       searchStore.setOpenModal(status)
     }
 
+    /**
+     * QQ 登录暂不可用：QQ 互联应用未申请（需域名备案 + 应用审核），
+     * 点击仅提示用户，不发起授权跳转。
+     */
     const qqLogin = () => {
-      userStore.currentUrl = route.path
-      reactiveDate.loginDialogVisible = false
-      if (commonStore.isMobile) {
-        //@ts-ignore
-        QC.Login.showPopup({
-          appId: config.qqLogin.QQ_APP_ID,
-          redirectURI: config.qqLogin.QQ_REDIRECT_URI
-        })
-      } else {
-        window.open(
-          'https://graph.qq.com/oauth2.0/show?which=Login&display=pc&client_id=' +
-            +config.qqLogin.QQ_APP_ID +
-            '&response_type=token&scope=all&redirect_uri=' +
-            config.qqLogin.QQ_REDIRECT_URI,
-          '_self'
-        )
-      }
+      proxy.$notify({
+        title: 'Warning',
+        message: 'QQ登录暂不可用，请使用邮箱登录或注册',
+        type: 'warning'
+      })
     }
     const updatePassword = () => {
       api.updatePassword(loginInfo).then(({ data }) => {
@@ -616,6 +646,15 @@ export default defineComponent({
 }
 .el-input-group__append {
   background-color: var(--background-primary-alt) !important;
+}
+/* 验证码发送按钮倒计时禁用态 */
+.code-send-btn {
+  cursor: pointer;
+  white-space: nowrap;
+}
+.code-send-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .el-form-item__label {
   text-align: left;
