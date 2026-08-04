@@ -27,6 +27,8 @@ public class ArticleAdminDTO {
 
     private LocalDateTime createTime;
 
+    private LocalDateTime updateTime;
+
     private Integer viewsCount;
 
     private String categoryName;

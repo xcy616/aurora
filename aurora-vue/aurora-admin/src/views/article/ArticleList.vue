@@ -135,6 +135,12 @@
           {{ $date(scope.row.createTime) }}
         </template>
       </el-table-column>
+      <el-table-column prop="updateTime" label="更新时间" width="130" align="center">
+        <template #default="scope">
+          <i class="el-icon-time" style="margin-right: 5px" />
+          {{ $date(scope.row.updateTime || scope.row.createTime) }}
+        </template>
+      </el-table-column>
       <el-table-column prop="isTop" label="置顶" width="80" align="center">
         <template #default="scope">
           <el-switch

@@ -52,6 +52,7 @@
         <result property="status" column="status"/>
         <result property="type" column="type"/>
         <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
         <result property="categoryName" column="category_name"/>
         <collection property="tagDTOs" ofType="com.aurora.model.dto.TagDTO">
             <id column="tag_id" property="id"/>
@@ -453,6 +454,7 @@
         a.status,
         a.type,
         a.create_time,
+        a.update_time,
         category_name,
         t.id AS tag_id,
         t.tag_name
@@ -468,6 +470,7 @@
         status,
         type,
         create_time,
+        update_time,
         category_id
         FROM
         t_article
@@ -499,19 +502,13 @@
                 )
             </if>
         </where>
-        ORDER BY
-        is_top DESC,
-        is_featured DESC,
-        id DESC
+        ORDER BY COALESCE(update_time, create_time) DESC, id DESC
         LIMIT #{current},#{size}
         ) a
         LEFT JOIN t_category c ON a.category_id = c.id
         LEFT JOIN t_article_tag at ON a.id = at.article_id
         LEFT JOIN t_tag t ON t.id = at.tag_id
-        ORDER BY
-        is_top DESC,
-        is_featured DESC,
-        a.id DESC
+        ORDER BY COALESCE(a.update_time, a.create_time) DESC, a.id DESC
     </select>
     <select id="listArticleStatistics" resultType="com.aurora.model.dto.ArticleStatisticsDTO">
         SELECT DATE_FORMAT(create_time, "%Y-%m-%d") AS date,
