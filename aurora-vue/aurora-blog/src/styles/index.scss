@@ -73,13 +73,13 @@ div::-webkit-scrollbar-track {
   max-height: 0;
 }
 
-/* 通知弹窗：居中显示 + 主题风格美化 */
+/* 通知弹窗：顶部显示（与导航栏“相册”对齐）+ 主题风格美化 */
 .el-notification {
-  top: 50% !important;
+  top: 30px !important;
   left: 50% !important;
   right: auto !important;
   bottom: auto !important;
-  transform: translate(-50%, -50%) !important;
+  transform: translateX(-50%) !important;
   margin: 0 !important;
   width: 420px !important;
   padding: 24px 26px 20px !important;
