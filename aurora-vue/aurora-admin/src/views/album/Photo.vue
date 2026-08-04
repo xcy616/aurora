@@ -44,8 +44,8 @@
     </div>
     <el-row class="photo-container" :gutter="10" v-loading="loading">
       <el-empty v-if="photos.length == 0" description="暂无照片" />
-      <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
-        <el-col :md="4" v-for="item of photos" :key="item.id">
+      <el-col :md="4" v-for="item of photos" :key="item.id">
+        <el-checkbox-group v-model="selectphotoIds" @change="handleCheckedPhotoChange">
           <el-checkbox :label="item.id">
             <div class="photo-item">
               <div class="photo-opreation">
@@ -62,8 +62,8 @@
               <div class="photo-name">{{ item.photoName }}</div>
             </div>
           </el-checkbox>
-        </el-col>
-      </el-checkbox-group>
+        </el-checkbox-group>
+      </el-col>
     </el-row>
     <el-pagination
       :hide-on-single-page="true"
@@ -443,6 +443,16 @@ export default {
   position: relative;
   cursor: pointer;
   margin-bottom: 1rem;
+}
+.photo-container .el-checkbox {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+.photo-container .el-checkbox__label {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
 }
 .photo-img {
   width: 100%;
