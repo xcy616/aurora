@@ -129,7 +129,7 @@
               FROM t_article
               where is_delete = 0
                 and status in (1, 2)
-              order by id desc
+              order by is_top desc, is_featured desc, COALESCE(update_time, create_time) desc, id desc
               LIMIT #{current} , #{size}) a
                  LEFT JOIN t_article_tag at
                            ON a.id = at.article_id
@@ -169,7 +169,7 @@
               WHERE category_id = #{categoryId}
                 and is_delete = 0
                 and status in (1, 2)
-              order by id desc
+              order by is_top desc, is_featured desc, COALESCE(update_time, create_time) desc, id desc
               LIMIT #{current} , #{size}) a
                  LEFT JOIN t_article_tag at
                            ON a.id = at.article_id
@@ -401,6 +401,7 @@
         WHERE at.tag_id = #{tagId}
           and a.is_delete = 0
           and status in (1, 2)
+        ORDER BY a.is_top DESC, a.is_featured DESC, COALESCE(a.update_time, a.create_time) DESC, a.id DESC
         LIMIT #{current} , #{size}
     </select>
     <select id="listArchives" resultType="com.aurora.model.dto.ArticleCardDTO">
