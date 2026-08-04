@@ -38,7 +38,7 @@
       <ThemeToggle />
     </span>
   </div>
-  <el-dialog v-model="loginDialogVisible" width="450px" :fullscreen="isMobile" class="login-dialog" :show-close="false">
+  <el-dialog v-model="loginDialogVisible" width="450px" :fullscreen="isMobile" class="login-dialog" :show-close="false" :modal="false">
     <form class="login-card form" @submit.prevent="login">
       <svg class="login-close-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" @click="loginDialogVisible = false"><path fill="currentColor" d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path></svg>
       <div class="flex-column">
@@ -79,7 +79,7 @@
       </div>
     </form>
   </el-dialog>
-  <el-dialog v-model="registerDialogVisible" width="30%" :fullscreen="isMobile">
+  <el-dialog v-model="registerDialogVisible" width="30%" :fullscreen="isMobile" :modal="false">
     <el-form>
       <el-form-item model="userInfo" class="mt-5">
         <el-input v-model="loginInfo.username" placeholder="邮箱" />
@@ -100,7 +100,7 @@
       <span class="text" @click="returnLoginDialog">已有帐号?登录</span>
     </el-form>
   </el-dialog>
-  <el-dialog v-model="forgetPasswordDialogVisible" width="30%" :fullscreen="isMobile">
+  <el-dialog v-model="forgetPasswordDialogVisible" width="30%" :fullscreen="isMobile" :modal="false">
     <el-form>
       <el-form-item model="userInfo" class="mt-5">
         <el-input v-model="loginInfo.username" placeholder="邮箱" />
@@ -121,7 +121,7 @@
       <span class="text" @click="returnLoginDialog">返回登录</span>
     </el-form>
   </el-dialog>
-  <el-dialog v-model="articlePasswordDialogVisible" width="30%" :fullscreen="isMobile">
+  <el-dialog v-model="articlePasswordDialogVisible" width="30%" :fullscreen="isMobile" :modal="false">
     <el-form @submit.native.prevent @keyup.enter.native="accessArticle">
       <el-form-item model="userInfo" class="mt-5">
         <el-input id="article-password-input" v-model="articlePassword" placeholder="文章受密码保护,请输入密码" />
