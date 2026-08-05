@@ -13,6 +13,10 @@
 <script>
 export default {
   props: {
+    modelValue: {
+      type: String,
+      default: ''
+    },
     value: {
       type: String,
       default: ''
@@ -28,12 +32,17 @@ export default {
   },
   data() {
     return {
-      innerText: this.value,
+      innerText: this.modelValue || this.value,
       isLocked: false,
       range: null
     }
   },
   watch: {
+    modelValue() {
+      if (!this.isLocked) {
+        this.innerText = this.modelValue
+      }
+    },
     value() {
       if (!this.isLocked) {
         this.innerText = this.value
@@ -44,9 +53,11 @@ export default {
     clear() {
       this.$el.innerHTML = ''
       this.$emit('input', this.$el.innerHTML)
+      this.$emit('update:modelValue', this.$el.innerHTML)
     },
     onInput() {
       this.$emit('input', this.$el.innerHTML)
+      this.$emit('update:modelValue', this.$el.innerHTML)
     },
     onFocus() {
       this.$emit('focus', this.$el.innerHTML)
@@ -78,6 +89,7 @@ export default {
         this.range.collapse(false)
         selection.addRange(this.range)
         this.$emit('input', this.$el.innerHTML)
+        this.$emit('update:modelValue', this.$el.innerHTML)
       }
     }
   }
