@@ -61,7 +61,6 @@
           <RecentComment v-if="true" />
           <TagBox />
           <Notice />
-          <WebsiteInfo />
         </Sidebar>
       </div>
     </div>
@@ -73,7 +72,7 @@ import { computed, defineComponent, onMounted, ref, toRefs, toRef, reactive } fr
 import { Feature, FeatureList } from '@/components/Feature'
 import { ArticleCard, HorizontalArticle } from '@/components/ArticleCard'
 import { Title } from '@/components/Title'
-import { Sidebar, Profile, RecentComment, TagBox, Notice, WebsiteInfo } from '@/components/Sidebar'
+import { Sidebar, Profile, RecentComment, TagBox, Notice } from '@/components/Sidebar'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useArticleStore } from '@/stores/article'
@@ -96,8 +95,7 @@ export default defineComponent({
     Profile,
     RecentComment,
     TagBox,
-    Notice,
-    WebsiteInfo
+    Notice
   },
   setup() {
     const appStore = useAppStore()
