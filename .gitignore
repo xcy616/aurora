@@ -23,3 +23,4 @@ dev-server-err.log
 target
 test
 application-dev.yml
+.env

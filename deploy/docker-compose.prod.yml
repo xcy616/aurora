@@ -1,0 +1,132 @@
+# 生产部署编排：MySQL / Redis / RabbitMQ / MinIO / 后端 / Nginx
+#
+# 使用步骤：
+#   1. 先构建产物（执行 deploy/build.sh，或在服务器上手动构建）
+#   2. cp deploy/.env.example .env 并修改里面的密码/域名
+#   3. docker compose -f deploy/docker-compose.prod.yml up -d
+#   4. 配置域名解析 + HTTPS（详见 deploy/DEPLOY.md）
+#
+# 注意：mysql 首次启动会用 sql/aurora.sql 初始化全新数据库。
+#       如果要把本地现有数据带过去，请用 mysqldump 导出导入，不要走这个初始化。
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: aurora-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-aurora123}
+      MYSQL_DATABASE: aurora
+      TZ: Asia/Shanghai
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../aurora-springboot/sql/aurora.sql:/docker-entrypoint-initdb.d/aurora.sql:ro
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-p${MYSQL_ROOT_PASSWORD:-aurora123}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:6.2
+    container_name: aurora-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: aurora-rabbitmq
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    container_name: aurora-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    ports:
+      # 图片公网访问：要么暴露 9000，要么用 nginx 反代 minio 子域名（推荐，可移除这两个端口）
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: eclipse-temurin:21-jre
+    container_name: aurora-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-aurora123}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBIT_HOST: rabbitmq
+      RABBIT_PORT: 5672
+      RABBIT_USERNAME: guest
+      RABBIT_PASSWORD: guest
+      # 图片访问地址：必须填公网可访问的地址（MinIO 子域名或 服务器IP:9000）
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET: aurora
+      JWT_SECRET: ${JWT_SECRET:-please-change-me}
+      WEBSITE_URL: ${WEBSITE_URL:-http://blog.example.com}
+      QQ_APP_ID: ${QQ_APP_ID:-100000000}
+    volumes:
+      - ../aurora-springboot/target/aurora-springboot-0.0.1.jar:/app/app.jar:ro
+    command: ['java', '-Xmx512m', '-jar', '/app/app.jar']
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: aurora-nginx
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../aurora-vue/aurora-blog/dist:/usr/share/nginx/html/blog:ro
+      - ../aurora-vue/aurora-admin/dist:/usr/share/nginx/html/admin:ro
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
+  redis-data:
+  rabbitmq-data:
+  minio-data:

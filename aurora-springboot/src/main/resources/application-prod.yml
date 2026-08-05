@@ -78,7 +78,7 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 jwt:
-  secret: aurora
+  secret: ${JWT_SECRET:aurora}
 
 search:
   mode: mysql
