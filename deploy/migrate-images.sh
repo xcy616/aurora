@@ -14,11 +14,19 @@ set -euo pipefail
 NEW_BASE="${1:?用法: sh deploy/migrate-images.sh https://minio.example.com}"
 OLD_BASE="http://localhost:9000"
 
-# 读取 .env（若存在）
-if [ -f .env ]; then
+# 读取 .env（compose 会从 deploy/ 目录读取，因此优先找 deploy/.env）
+if [ -f deploy/.env ]; then
+  ENV_FILE="deploy/.env"
+elif [ -f .env ]; then
+  ENV_FILE=".env"
+else
+  ENV_FILE=""
+fi
+
+if [ -n "$ENV_FILE" ]; then
   set -a
   # shellcheck disable=SC1091
-  source .env
+  source "$ENV_FILE"
   set +a
 fi
 

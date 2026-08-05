@@ -26,3 +26,5 @@ application-dev.yml
 .env
 deploy-bundle.zip
 deploy-dist-update.zip
+deploy-nginx-update.zip
+aurora-backup.sql

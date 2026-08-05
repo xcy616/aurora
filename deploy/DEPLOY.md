@@ -25,10 +25,11 @@ sh deploy/build.sh
 ## 三、配置环境变量
 
 ```bash
-cp deploy/.env.example .env
-vim .env   # 修改密码、域名、JWT 密钥
+cp deploy/.env.example deploy/.env
+vim deploy/.env   # 修改密码、域名、JWT 密钥
 ```
 
+> ⚠️ `.env` 必须放在 `deploy/` 目录下（docker compose 从 compose 文件所在目录读取 .env）。
 > `.env` 不要提交到 git。
 
 ## 四、启动
