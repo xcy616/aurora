@@ -156,7 +156,7 @@ export default {
   padding: 20px;
   background:
     linear-gradient(rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.55)),
-    url(https://static.linhaojun.top/aurora/photos/765664a8a75211296a9cd89671d6d660.png) center center / cover no-repeat,
+    url(/img/login-bg.png) center center / cover no-repeat,
     #0f172a;
 }
 

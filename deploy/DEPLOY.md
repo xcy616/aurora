@@ -55,6 +55,17 @@ docker exec aurora-minio mc anonymous set download local/aurora
 
 同时确认 `.env` 里 `MINIO_ENDPOINT` 是公网可访问地址（例如 `https://minio.example.com` 或 `http://服务器IP:9000`）。
 
+### 数据库图片地址迁移（必须）
+
+本地数据库里存的图片地址是 `http://localhost:9000/aurora/...`，上线后浏览器访问不到，需要统一替换成生产地址：
+
+```bash
+sh deploy/migrate-images.sh https://minio.example.com
+```
+
+脚本会替换文章封面、用户头像、友链头像、说说图片、网站配置里所有 `http://localhost:9000` 前缀。
+如还有 `linhaojun / picsum / talkxj` 等外链图片，请在后台重新上传或手动迁移。
+
 ## 六、HTTPS（可选但推荐）
 
 用 certbot 申请免费证书：

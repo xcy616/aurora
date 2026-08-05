@@ -98,7 +98,7 @@
             :src="
               scope.row.articleCover
                 ? scope.row.articleCover
-                : 'https://static.talkxj.com/articles/c5cc2b2561bd0e3060a500198a4ad37d.png'
+                : '/img/article-default-cover.jpg'
             " />
           <i v-if="scope.row.status == 1" class="iconfont el-icon-mygongkai article-status-icon" />
           <i v-if="scope.row.status == 2" class="iconfont el-icon-mymima article-status-icon" />
