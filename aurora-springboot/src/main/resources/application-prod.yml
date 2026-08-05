@@ -5,13 +5,13 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql的ip:3306/aurora?serverTimezone=Asia/Shanghai&allowMultiQueries=true
-    username: 账号
-    password: 密码
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3307}/aurora?serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:aurora123}
     hikari:
-      minimum-idle: 10
+      minimum-idle: 5
       idle-timeout: 180000
-      maximum-pool-size: 100
+      maximum-pool-size: 20
       auto-commit: true
       pool-name: MyHikariCP
       max-lifetime: 60000
@@ -19,22 +19,22 @@ spring:
       connection-test-query: SELECT 1
 
   redis:
-    host: redis的ip
-    port: 6379
-    password: 密码
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
     database: 0
     lettuce:
       pool:
-        min-idle: 10
-        max-idle: 100
-        max-active: 100
+        min-idle: 5
+        max-idle: 20
+        max-active: 20
         max-wait: 10000
 
   rabbitmq:
-    host: rabbitmq的ip
-    port: 5672
-    username: 账号
-    password: 密码
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME:guest}
+    password: ${RABBIT_PASSWORD:guest}
     listener:
       simple:
         retry:
@@ -44,12 +44,12 @@ spring:
 
   elasticsearch:
     rest:
-      uris: es的ip:9200
+      uris: ${ES_URIS:localhost:9200}
 
   mail:
-    host: smtp.163.com
-    username: 邮箱
-    password: 密码
+    host: smtp.qq.com
+    username: 2585424753@qq.com
+    password: foblkhuhigvtdjdd
     default-encoding: UTF-8
     protocol: smtp
     port: 465
@@ -81,27 +81,27 @@ jwt:
   secret: aurora
 
 search:
-  mode: elasticsearch
+  mode: mysql
 
 upload:
-  mode: oss
+  mode: minio
   oss:
-    url: http://Bucket域名/
-    endpoint: OSS配置endpoint
-    accessKeyId: OSS配置accessKeyId
-    accessKeySecret: OSS配置accessKeySecret
-    bucketName: OSS配置bucketName
+    url: ${OSS_URL:http://localhost/}
+    endpoint: ${OSS_ENDPOINT:local}
+    accessKeyId: ${OSS_ACCESS_KEY_ID:local}
+    accessKeySecret: ${OSS_ACCESS_KEY_SECRET:local}
+    bucketName: ${OSS_BUCKET_NAME:local}
   minio:
-    url: http://minio的ip:9000/
-    endpoint: http://minio的ip:9000
-    accesskey: 用户名
-    secretKey: 密码
-    bucketName: 桶的名称
+    url: ${MINIO_ENDPOINT:http://localhost:9000}/
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    accesskey: ${MINIO_ACCESS_KEY:minioadmin}
+    secretKey: ${MINIO_SECRET_KEY:minioadmin}
+    bucketName: ${MINIO_BUCKET:aurora}
 
 website:
-  url: https://前台域名
+  url: ${WEBSITE_URL:http://localhost:8082}
 
 qq:
-  app-id: QQ APPID
+  app-id: ${QQ_APP_ID:100000000}
   check-token-url: https://graph.qq.com/oauth2.0/me?access_token={access_token}
   user-info-url: https://graph.qq.com/user/get_user_info?openid={openid}&access_token={access_token}&oauth_consumer_key={oauth_consumer_key}
