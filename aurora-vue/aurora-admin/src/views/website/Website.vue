@@ -60,14 +60,6 @@
               <el-radio :label="1">开启</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="网站创建日期">
-            <el-date-picker
-              style="width: 400px"
-              value-format="yyyy-MM-dd"
-              v-model="websiteConfigForm.websiteCreateTime"
-              type="date"
-              placeholder="选择日期" />
-          </el-form-item>
           <el-form-item label="网站公告">
             <el-input
               v-model="websiteConfigForm.notice"
