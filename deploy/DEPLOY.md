@@ -3,10 +3,10 @@
 ## 一、准备
 
 1. 一台服务器（推荐 2核4G，香港节点免备案）
-2. 一个域名，解析两个子域名到服务器 IP：
-   - `blog.example.com` → 博客前台
-   - `admin.example.com` → 管理后台
-   （可选）`minio.example.com` → 图片存储
+2. 一个域名，解析到服务器 IP：
+   - `liliyuan.top`、`www.liliyuan.top` → 博客前台（HTTPS）
+   - `admin.liliyuan.top` → 管理后台（HTTPS）
+   - 图片走 `https://liliyuan.top/minio/` 同域名反代，不需要单独的子域名
 3. 服务器安装 Docker：
    ```bash
    curl -fsSL https://get.docker.com | sh
@@ -54,39 +54,64 @@ docker exec aurora-minio mc alias set local http://localhost:9000 <MINIO_ROOT_US
 docker exec aurora-minio mc anonymous set download local/aurora
 ```
 
-同时确认 `.env` 里 `MINIO_ENDPOINT` 是公网可访问地址（例如 `https://minio.example.com` 或 `http://服务器IP:9000`）。
+同时确认 `.env` 里 `MINIO_ENDPOINT` 是公网可访问地址（当前方案是 `https://liliyuan.top/minio`）。
 
 ### 数据库图片地址迁移（必须）
 
 本地数据库里存的图片地址是 `http://localhost:9000/aurora/...`，上线后浏览器访问不到，需要统一替换成生产地址：
 
 ```bash
-sh deploy/migrate-images.sh https://minio.example.com
+sh deploy/migrate-images.sh https://liliyuan.top/minio
 ```
 
 脚本会替换文章封面、用户头像、友链头像、说说图片、网站配置里所有 `http://localhost:9000` 前缀。
+如果库里存的是 `http://服务器IP:9000`，把旧前缀作为第二个参数传入：
+`sh deploy/migrate-images.sh https://liliyuan.top/minio http://服务器IP:9000`。
 如还有 `linhaojun / picsum / talkxj` 等外链图片，请在后台重新上传或手动迁移。
 
-## 六、HTTPS（可选但推荐）
+## 六、HTTPS
 
-用 certbot 申请免费证书：
+1. 在云厂商（阿里云 / 腾讯云）申请 **DV 单域名免费证书**：`liliyuan.top`（通常同时包含
+   `www.liliyuan.top`）和 `admin.liliyuan.top` 各一张，下载时选 **Nginx 格式**（`.pem` + `.key`）。
+2. 把证书文件传到服务器，放到 `deploy/cert/` 目录下，文件名保持：
+   `liliyuan.top.pem` / `liliyuan.top.key`、`admin.liliyuan.top.pem` / `admin.liliyuan.top.key`
+   （`deploy/nginx/nginx.conf` 已经按这些路径写好，443 监听、80 跳转也都配好了）。
+3. 重新创建 nginx 容器使证书挂载生效：
+
+   ```bash
+   docker compose -f deploy/docker-compose.prod.yml up -d nginx
+   ```
+
+> 图片通过 `https://liliyuan.top/minio/` 反代，与网站同域名同 HTTPS；
+> 管理后台 `admin.liliyuan.top` 用自己的证书走 HTTPS。
+
+## 六点五、备案前临时访问（大陆服务器专用）
+
+阿里云会拦截**未备案域名**的访问（80/443 以及所有端口带域名 Host 都会 403），
+备案通过前只能用**服务器 IP** 访问。临时方案：
 
 ```bash
-docker run --rm -p 80:80 -v /etc/letsencrypt:/etc/letsencrypt certbot/certbot certonly \
-  --standalone -d blog.example.com -d admin.example.com
+# 1. 把 nginx 的 80 端口映射改成 8088，并额外加 8089（后台用）
+sed -i "s|      - '80:80'|      - '8088:80'\n      - '8089:8089'|" deploy/docker-compose.prod.yml
+
+# 2. 在 nginx.conf 里加上 8089 后台站点（deploy/nginx/nginx.conf 已内置该 server 块）
+
+# 3. 重新创建 nginx 容器
+docker compose -f deploy/docker-compose.prod.yml up -d nginx
 ```
 
-然后把 `deploy/nginx/nginx.conf` 里的 server_name 改成你的真实域名，并加上 443 监听与证书：
+访问：
+- 前台：`http://服务器IP:8088`
+- 后台：`http://服务器IP:8089`
 
-```nginx
-listen 443 ssl;
-ssl_certificate     /etc/letsencrypt/live/blog.example.com/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/blog.example.com/privkey.pem;
+安全组放行 **8088、8089、9000**。备案通过后：
+
+```bash
+# 恢复正式端口
+sed -i "s|      - '8088:80'\n      - '8089:8089'|      - '80:80'|" deploy/docker-compose.prod.yml
+sed -i "s|      - '8088:80'|      - '80:80'|" deploy/docker-compose.prod.yml
+docker compose -f deploy/docker-compose.prod.yml up -d nginx
 ```
-
-并在 nginx 容器挂载证书目录：`/etc/letsencrypt:/etc/letsencrypt:ro`。
-
-> 如果走 HTTPS，图片地址也要是 HTTPS（MINIO_ENDPOINT 用 minio 子域名或加证书），否则浏览器会拦截混合内容。
 
 ## 七、QQ 登录（待申请）
 

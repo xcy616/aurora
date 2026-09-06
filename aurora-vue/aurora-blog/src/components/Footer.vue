@@ -11,8 +11,8 @@
               <b class="font-extrabold">&nbsp;{{ websiteConfig.author }}</b>
             </li>
             <li v-if="websiteConfig.gonganBeianNumber != '' && websiteConfig.gonganBeianNumber != undefined" class="flex flex-row mx-auto">
-              <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402013558" target="_blank">
-                <img src="https://oss.supermouse.cn/aurora/config/gongan-beian-icon.png" style="float:left;"/> &nbsp;
+              <a :href="gonganBeianLink" target="_blank">
+                <img src="/img/gongan-beian-icon.png" style="float:left;" /> &nbsp;
                 <b class="font-extrabold border-b-2 border-ob hover:text-ob"> {{ websiteConfig.gonganBeianNumber }} </b>
               </a>
             </li>
@@ -51,6 +51,13 @@ export default defineComponent({
       }),
       currentYear: computed(() => new Date().getUTCFullYear()),
       websiteConfig: computed(() => appStore.websiteConfig),
+      // 公安备案跳转链接：从填写的备案号里自动提取纯数字作为 recordcode
+      // 例如"皖公网安备 34010212345678号" → recordcode=34010212345678
+      gonganBeianLink: computed(
+        () =>
+          'http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=' +
+          (appStore.websiteConfig.gonganBeianNumber || '').replace(/\D/g, '')
+      ),
       t
     }
   }

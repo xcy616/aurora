@@ -24,7 +24,8 @@ target
 test
 application-dev.yml
 .env
-deploy-bundle.zip
-deploy-dist-update.zip
-deploy-nginx-update.zip
+deploy-*.zip
+admin-dist.zip
+blog-dist.zip
 aurora-backup.sql
+deploy/cert/

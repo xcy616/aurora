@@ -91,12 +91,15 @@ services:
       RABBIT_USERNAME: guest
       RABBIT_PASSWORD: guest
       # 图片访问地址：必须填公网可访问的地址（MinIO 子域名或 服务器IP:9000）
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-http://localhost:9000}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-https://liliyuan.top/minio}
+      # 后端上传时直连容器内部的 MinIO（避免绕公网 + 路径前缀导致的连接/解析问题）
+      UPLOAD_MINIO_URL: ${UPLOAD_MINIO_URL:-https://liliyuan.top/minio/}
+      UPLOAD_MINIO_ENDPOINT: ${UPLOAD_MINIO_ENDPOINT:-http://minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_BUCKET: aurora
       JWT_SECRET: ${JWT_SECRET:-please-change-me}
-      WEBSITE_URL: ${WEBSITE_URL:-http://blog.example.com}
+      WEBSITE_URL: ${WEBSITE_URL:-https://liliyuan.top}
       QQ_APP_ID: ${QQ_APP_ID:-100000000}
     volumes:
       - ../aurora-springboot/target/aurora-springboot-0.0.1.jar:/app/app.jar:ro
@@ -118,8 +121,12 @@ services:
     ports:
       - '80:80'
       - '443:443'
+      # 过渡期：保留服务器IP:8089 访问后台，域名稳定后删除这一行
+      - '8089:8089'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # HTTPS 证书目录：把云厂商下载的 Nginx 格式证书（.pem/.key）放到 deploy/cert/ 下
+      - ./cert:/etc/nginx/cert:ro
       - ../aurora-vue/aurora-blog/dist:/usr/share/nginx/html/blog:ro
       - ../aurora-vue/aurora-admin/dist:/usr/share/nginx/html/admin:ro
     depends_on:
